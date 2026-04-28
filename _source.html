@@ -1,0 +1,2605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#001D47" />
+<title>Ahmed Bilal — Electrical engineer building ML for the machines themselves</title>
+<meta name="description" content="Ahmed Bilal — final-year electrical engineer at NED University. Reproducing state-of-the-art deep-learning prognostics on rotating machinery. MITACS Globalink GRI 2026 selectee at Saint Mary's University. Four merged PRs to ROOT and ROS 2." />
+<meta name="author" content="Ahmed Bilal" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Ahmed Bilal — ML for the machines themselves" />
+<meta property="og:description" content="Final-year EE building digital twins for rotating machinery. MITACS GRI 2026. Four merged PRs to ROOT and ROS 2." />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" type="image/svg+xml" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><radialGradient id="g" cx="50%25" cy="50%25"><stop offset="0%25" stop-color="%235FFFCE"/><stop offset="60%25" stop-color="%2321FFB5"/><stop offset="100%25" stop-color="%230dd496"/></radialGradient></defs><rect width="64" height="64" rx="14" fill="%23001D47"/><circle cx="32" cy="32" r="18" fill="url(%23g)"/><circle cx="32" cy="32" r="18" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.4"/></svg>' />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<style>
+  /* =========  TOKENS  ========= */
+  :root {
+    --bg-1:         #001D47;        /* deep navy */
+    --bg-2:         #002860;        /* mid navy */
+    --bg-3:         #003380;        /* lighter navy */
+    --glass:        rgba(255,255,255,0.04);
+    --glass-2:      rgba(255,255,255,0.06);
+    --glass-3:      rgba(255,255,255,0.09);
+    --glass-border: rgba(255,255,255,0.10);
+    --glass-border-2: rgba(255,255,255,0.16);
+
+    --ink:          #FFFFFF;        /* pure white */
+    --ink-dim:      rgba(255,255,255,0.75);
+    --ink-mute:     rgba(255,255,255,0.50);
+    --ink-faint:    rgba(255,255,255,0.30);
+
+    --accent:       #21FFB5;        /* CERN green */
+    --accent-2:     #5FFFCE;        /* lighter green */
+    --accent-soft:  rgba(33,255,181,0.12);
+    --accent-line:  rgba(33,255,181,0.4);
+
+    --teal:         #0055FF;        /* electric blue */
+    --teal-soft:    rgba(0,85,255,0.12);
+    --gold:         #E5F95B;        /* vibrant yellow */
+
+    --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    --radius:    12px;
+    --radius-lg: 20px;
+    --maxw:      1280px;
+    --shadow:    0 8px 32px rgba(0,0,0,0.35);
+    --shadow-lg: 0 24px 64px rgba(0,0,0,0.45);
+    --glow:      0 0 32px rgba(33,255,181,0.18);
+    --ease:      cubic-bezier(.2,.7,.2,1);
+    --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);
+  }
+
+  /* =========  Reset  ========= */
+  *,*::before,*::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *,*::before,*::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+  }
+  body {
+    margin: 0;
+    color: #FFFFFF;
+    font-family: var(--font-sans); font-size: 16px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    background: #001D47;
+    min-height: 100vh;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  img,svg,canvas { max-width: 100%; display: block; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  ::selection { background: #21FFB5; color: #FFFFFF; }
+  .skip { position: absolute; left: -9999px; }
+  .skip:focus { left: 1rem; top: 1rem; padding: .5rem .75rem; background: #21FFB5; color: #FFFFFF; z-index: 1000; border-radius: 6px; font-weight: 700; }
+
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(33,255,181,0.20); border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(33,255,181,0.35); }
+
+  /* =========  Layout  ========= */
+  .container { width: 100%; max-width: var(--maxw); margin-inline: auto; padding-inline: clamp(20px, 4vw, 40px); position: relative; z-index: 2; }
+  section { position: relative; padding-block: clamp(80px, 9vw, 140px); z-index: 2; }
+
+  .section-head { display: flex; flex-direction: column; gap: 16px; margin-bottom: 64px; }
+  .section-tag {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: #001D47; font-weight: 700;
+    padding: 7px 16px; background: #21FFB5; border: none;
+    border-radius: 999px; align-self: flex-start;
+  }
+  
+  .section-title {
+    font-family: var(--font-sans); font-weight: 800;
+    font-size: clamp(32px, 4vw, 56px); line-height: 1.06;
+    letter-spacing: -0.02em; margin: 0; max-width: 26ch; color: #E5F95B;
+  }
+  .section-title em { font-style: normal; color: #21FFB5; -webkit-text-fill-color: #21FFB5; }
+  .section-sub { color: rgba(255,255,255,0.75); max-width: 640px; font-size: 17px; margin-top: 14px; line-height: 1.6; font-weight: 300; }
+
+  /* =========  Glass card primitive  ========= */
+  .glass {
+    background: #002660;
+    border: 1px solid rgba(33,255,181,0.15);
+    border-radius: var(--radius-lg);
+    position: relative;
+    overflow: hidden;
+  }
+  .glass::before { display: none; }
+
+  /* =========  Buttons  ========= */
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 24px; border-radius: 999px;
+    font-weight: 600; font-size: 14.5px;
+    transition: all .35s var(--ease);
+    border: 1.5px solid transparent;
+    line-height: 1; position: relative; overflow: hidden;
+  }
+  .btn::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.18), transparent 60%);
+    opacity: 0; transition: opacity .3s; pointer-events: none;
+  }
+  .btn:hover::before { opacity: 1; }
+  .btn-primary {
+    background: linear-gradient(135deg, #21FFB5, #0dd496);
+    color: #001D47;
+    box-shadow: 0 4px 16px rgba(33,255,181,0.30);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(33,255,181,0.45), 0 0 0 1px rgba(255,255,255,0.10) inset; }
+  .btn-ghost {
+    background: rgba(255,255,255,0.06);
+    color: #FFFFFF;
+    border-color: rgba(255,255,255,0.16);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.09); border-color: rgba(33,255,181,0.3); transform: translateY(-2px); }
+  .btn .arrow { transition: transform .25s var(--ease); display: inline-block; }
+  .btn:hover .arrow { transform: translateX(3px); }
+
+  /* =========  Nav  ========= */
+  .nav {
+    position: fixed; inset: 0 0 auto 0; z-index: 50;
+    background: #001D47;
+    backdrop-filter: saturate(150%) blur(16px);
+    -webkit-backdrop-filter: saturate(150%) blur(16px);
+    border-bottom: 1px solid transparent;
+    transition: border-color .3s, background .3s;
+  }
+  .nav.is-scrolled { border-bottom-color: rgba(33,255,181,0.2); background: #001D47; }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+  .brand { display: inline-flex; align-items: center; gap: 12px; font-weight: 700; font-size: 16px; letter-spacing: -0.01em; color: #FFFFFF; }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 10px;
+    background: radial-gradient(circle at 30% 30%, #5FFFCE, #21FFB5 60%, #0FA870);
+    box-shadow: 0 0 16px rgba(33,255,181,0.4), 0 0 0 1px rgba(255,255,255,0.10) inset;
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .brand-mark::after {
+    content: ""; position: absolute; inset: 4px; border-radius: 6px;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 60%);
+  }
+  .nav-links { display: flex; align-items: center; gap: 4px; }
+  .nav-links a {
+    padding: 9px 16px; border-radius: 8px; font-size: 14px; font-weight: 500;
+    color: rgba(255,255,255,0.75); transition: all .25s;
+  }
+  .nav-links a:hover { color: #FFFFFF; background: rgba(255,255,255,0.06); }
+  .menu-btn { display: none; width: 42px; height: 42px; align-items: center; justify-content: center; border-radius: 10px; border: 1px solid rgba(255,255,255,0.16); background: rgba(255,255,255,0.04); }
+  .menu-btn span { display: block; width: 18px; height: 2px; background: #FFFFFF; position: relative; transition: transform .3s, background .3s; border-radius: 2px; }
+  .menu-btn span::before, .menu-btn span::after { content: ""; position: absolute; left: 0; right: 0; height: 2px; background: #FFFFFF; border-radius: 2px; transition: transform .3s; }
+  .menu-btn span::before { top: -6px; }
+  .menu-btn span::after  { top:  6px; }
+  .menu-btn.is-open span { background: transparent; }
+  .menu-btn.is-open span::before { transform: translateY(6px) rotate(45deg); }
+  .menu-btn.is-open span::after  { transform: translateY(-6px) rotate(-45deg); }
+  @media (max-width: 940px) {
+    .nav-links, .nav-inner > .btn { display: none; }
+    .menu-btn { display: inline-flex; }
+  }
+  .nav-mobile {
+    position: fixed; inset: 72px 0 0 0;
+    background: #001528;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    padding: 28px clamp(20px, 4vw, 40px); transform: translateY(-8px); opacity: 0;
+    pointer-events: none; transition: opacity .3s, transform .3s;
+    z-index: 49; border-top: 1px solid rgba(255,255,255,0.10);
+  }
+  .nav-mobile.is-open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .nav-mobile a { display: block; padding: 16px 0; font-size: 22px; font-weight: 600; color: #FFFFFF; border-bottom: 1px solid rgba(255,255,255,0.10); }
+  .nav-mobile a:last-child { border-bottom: 0; }
+  .nav-mobile .btn { margin-top: 18px; width: 100%; justify-content: center; }
+  @media (min-width: 941px) { .nav-mobile { display: none; } }
+
+
+  /* Hero turbofan engine */
+  .hero-engine-stage {
+    position: relative; width: 100%; aspect-ratio: 1/1;
+    border-radius: 20px; overflow: hidden;
+    border: 1px solid rgba(33,255,181,0.2);
+    background: rgba(0,20,50,0.6);
+  }
+  .hero-engine-stage canvas { width: 100% !important; height: 100% !important; cursor: grab; display: block; }
+  .hero-engine-stage canvas:active { cursor: grabbing; }
+  @media (max-width: 860px) { .hero-engine-stage { max-width: 460px; margin: 0 auto; } }
+
+
+  /* =========  3D ENGINE SHOWCASE  ========= */
+  .engine-showcase {
+    padding-block: 0;
+    background: #001528;
+    border-top: 1px solid rgba(33,255,181,0.12);
+    border-bottom: 1px solid rgba(33,255,181,0.12);
+  }
+  .engine-showcase-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    max-width: var(--maxw);
+    margin: 0 auto;
+  }
+  .engine-canvas-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #000d1f;
+    overflow: hidden;
+  }
+  .engine-canvas-wrap canvas { width: 100% !important; height: 100% !important; cursor: grab; display: block; }
+  .engine-canvas-wrap canvas:active { cursor: grabbing; }
+
+  .engine-hud {
+    position: absolute;
+    padding: 10px 14px;
+    background: rgba(0,29,71,0.85);
+    border: 1px solid rgba(33,255,181,0.25);
+    border-radius: 8px;
+    font-family: "JetBrains Mono", monospace;
+    pointer-events: none;
+  }
+  .engine-hud-tl { top: 16px; left: 16px; }
+  .engine-hud-tr { top: 16px; right: 16px; }
+  .engine-hud-bl { bottom: 16px; left: 16px; }
+  .engine-hud-br { bottom: 16px; right: 16px; }
+  .hud-label { font-size: 9px; letter-spacing: .18em; color: rgba(255,255,255,0.45); text-transform: uppercase; margin-bottom: 3px; }
+  .hud-value { font-size: 18px; font-weight: 700; color: #FFFFFF; }
+  .hud-value.hud-green { color: #21FFB5; }
+  .hud-value.hud-yellow { color: #E5F95B; }
+
+  .engine-drag-hint {
+    position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+    font-family: "JetBrains Mono", monospace; font-size: 10px;
+    color: rgba(255,255,255,0.3); letter-spacing: .1em; white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .engine-showcase-text {
+    padding: clamp(40px, 6vw, 80px);
+  }
+  .engine-badge {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .15em;
+    text-transform: uppercase; color: #21FFB5; font-weight: 600;
+    margin-bottom: 20px;
+    animation: pulse-badge 2s ease-in-out infinite;
+  }
+  @keyframes pulse-badge { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .engine-showcase-title {
+    font-weight: 800; font-size: clamp(32px, 4vw, 54px);
+    line-height: 1.05; letter-spacing: -0.025em;
+    color: #FFFFFF; margin: 0 0 20px;
+  }
+  .engine-title-accent { color: #21FFB5; }
+  .engine-showcase-desc {
+    color: rgba(255,255,255,0.7); font-size: 16px; line-height: 1.7;
+    max-width: 46ch; margin-bottom: 36px;
+  }
+  .engine-metrics {
+    display: flex; gap: 36px; flex-wrap: wrap;
+  }
+  .engine-metric .em-num {
+    font-weight: 800; font-size: 32px; color: #E5F95B; line-height: 1;
+  }
+  .engine-metric .em-label {
+    font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px;
+    font-family: "JetBrains Mono", monospace; letter-spacing: .05em;
+  }
+
+  @media (max-width: 900px) {
+    .engine-showcase-inner { grid-template-columns: 1fr; }
+    .engine-canvas-wrap { aspect-ratio: 4/3; }
+    .engine-showcase-text { padding: clamp(28px,5vw,48px); }
+  }
+
+  /* =========  HERO  ========= */
+  .hero { padding-top: 120px; padding-bottom: 80px; min-height: 96vh; display: flex; align-items: center; position: relative; overflow: hidden; }
+
+
+
+  .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; width: 100%; position: relative; z-index: 2; }
+  @media (max-width: 860px) { .hero-grid { grid-template-columns: 1fr; text-align: center; } }
+  .hero-sphere-stage { position: relative; width: 100%; max-width: 640px; aspect-ratio: 1/1; margin: 0 auto; }
+  .hero-sphere-stage canvas { width: 100% !important; height: 100% !important; cursor: grab; }
+  .hero-sphere-stage canvas:active { cursor: grabbing; }
+
+  .hero-content { max-width: 600px; }
+
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 16px; border-radius: 999px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.16);
+    color: #FFFFFF; font-family: var(--font-mono); font-size: 11.5px; font-weight: 500;
+    letter-spacing: .08em; text-transform: uppercase; margin-bottom: 32px;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .hero-eyebrow .pulse { width: 6px; height: 6px; border-radius: 50%; background: #21FFB5; box-shadow: 0 0 8px #21FFB5; animation: pulse 2.4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.4); } }
+  .hero-eyebrow .star { color: #E5F95B; font-size: 12px; }
+
+  .hero-title {
+    font-weight: 800;
+    font-size: clamp(36px, 5.2vw, 76px);
+    line-height: 1.06; letter-spacing: -0.02em;
+    margin: 0; color: #FFFFFF;
+  }
+  .hero-title .accent {
+    color: #21FFB5;
+    background: none;
+    -webkit-text-fill-color: #21FFB5;
+    display: inline-block;
+  }
+  .hero-title .light { font-weight: 200; color: rgba(255,255,255,0.75); }
+
+  .hero-credentials {
+    margin-top: 32px; font-size: clamp(16px, 1.4vw, 19px); line-height: 1.65;
+    color: rgba(255,255,255,0.75); max-width: 60ch; font-weight: 300;
+  }
+  .hero-credentials strong { color: #FFFFFF; font-weight: 600; }
+
+  .hero-meta {
+    margin-top: 28px; display: flex; flex-wrap: wrap; justify-content: flex-start;
+    gap: 8px 24px; font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.50); letter-spacing: .02em;
+  }
+  .hero-meta-item { display: inline-flex; align-items: center; gap: 8px; }
+  .hero-meta-item svg { width: 14px; height: 14px; color: #21FFB5; flex-shrink: 0; }
+
+  .hero-actions { margin-top: 40px; display: flex; gap: 14px; flex-wrap: wrap; justify-content: flex-start; }
+
+  /* Scroll indicator */
+  .scroll-hint {
+    position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+    font-family: var(--font-mono); font-size: 10.5px; color: rgba(255,255,255,0.50);
+    letter-spacing: .2em; text-transform: uppercase;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    z-index: 3;
+  }
+  .scroll-hint .line { width: 1px; height: 32px; background: linear-gradient(180deg, #21FFB5, transparent); position: relative; overflow: hidden; }
+  .scroll-hint .line::after { content: ""; position: absolute; inset: 0; background: #21FFB5; animation: scrollDot 2.2s ease-in-out infinite; }
+  @keyframes scrollDot { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+
+  /* =========  Stats  ========= */
+  .stats { padding-block: 0; margin-top: 0; }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  @media (max-width: 760px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  .stat { padding: 32px 24px; border-right: 1px solid rgba(255,255,255,0.10); position: relative; transition: background .3s; }
+  .stat:hover { background: rgba(255,255,255,0.06); }
+  .stat:nth-child(4n) { border-right: 0; }
+  @media (max-width: 760px) {
+    .stat:nth-child(2n)   { border-right: 0; }
+    .stat:nth-child(2n+1) { border-right: 1px solid rgba(255,255,255,0.10); }
+    .stat:nth-child(-n+2) { border-bottom: 1px solid rgba(255,255,255,0.10); }
+  }
+  .stat-num { font-size: clamp(32px, 3.8vw, 48px); font-weight: 700; line-height: 1; letter-spacing: -0.03em; color: #FFFFFF; }
+  .stat-num span { background: linear-gradient(135deg, #5FFFCE, #21FFB5); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,0.50); margin-top: 12px; }
+
+  /* =========  About  ========= */
+  .about-grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(40px, 6vw, 96px); align-items: start; }
+  @media (max-width: 900px) { .about-grid { grid-template-columns: 1fr; gap: 32px; } }
+  .about-card { padding: 36px; position: sticky; top: 100px; }
+  .about-card .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,0.50); display: block; margin-bottom: 22px; }
+  .about-card dl { margin: 0; padding: 0; position: relative; z-index: 2; }
+  .about-card dt { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,0.50); margin-top: 24px; }
+  .about-card dt:first-of-type { margin-top: 0; }
+  .about-card dd { margin: 6px 0 0; font-size: 15px; font-weight: 500; color: #FFFFFF; }
+  .about-card dd .meta { font-weight: 400; color: rgba(255,255,255,0.50); font-size: 13px; }
+  .about-body p { margin: 0 0 22px; font-size: 18px; line-height: 1.7; color: rgba(255,255,255,0.75); font-weight: 300; }
+  .about-body p strong { color: #FFFFFF; font-weight: 600; }
+  .about-body .pull {
+    padding: 22px 28px; border-radius: var(--radius);
+    background: linear-gradient(135deg, rgba(33,255,181,0.12), transparent);
+    border-left: 3px solid #21FFB5;
+    font-size: 19px; color: #FFFFFF; font-weight: 400; line-height: 1.5;
+    margin: 32px 0; font-style: italic;
+  }
+
+  /* =========  Featured cards (FYP, Paper)  ========= */
+  .feature-card { padding: clamp(28px, 4vw, 48px); position: relative; }
+  .feature-card::after {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(33,255,181,0.3) 50%, transparent 100%);
+  }
+  .feat-grid { display: grid; grid-template-columns: 7fr 5fr; gap: 48px; align-items: start; position: relative; z-index: 2; }
+  @media (max-width: 980px) { .feat-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+  .feat-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(33,255,181,0.12); color: #21FFB5;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; font-weight: 500; margin-bottom: 18px;
+    border: 1px solid rgba(33,255,181,0.3);
+  }
+  .feat-tag .dot { width: 5px; height: 5px; border-radius: 50%; background: #21FFB5; box-shadow: 0 0 6px #21FFB5; }
+  .feat-title { font-size: clamp(28px, 3.4vw, 40px); font-weight: 700; line-height: 1.1; letter-spacing: -0.025em; margin: 0 0 14px; color: #FFFFFF; }
+  .feat-collab { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.50); letter-spacing: .04em; margin-bottom: 26px; }
+  .feat-collab strong { color: #FFFFFF; font-weight: 600; }
+  .feat-desc { font-size: 16px; line-height: 1.7; color: rgba(255,255,255,0.75); margin: 0 0 24px; font-weight: 300; }
+  .feat-desc strong { color: #FFFFFF; font-weight: 600; }
+
+  .feat-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+    border: 1px solid rgba(255,255,255,0.10); border-radius: var(--radius); overflow: hidden;
+    margin-bottom: 26px; background: rgba(10,22,40,0.4);
+  }
+  .feat-stats > div { padding: 18px 16px; border-right: 1px solid rgba(255,255,255,0.10); }
+  .feat-stats > div:last-child { border-right: 0; }
+  @media (max-width: 540px) { .feat-stats { grid-template-columns: 1fr; } .feat-stats > div { border-right: 0; border-bottom: 1px solid rgba(255,255,255,0.10); } .feat-stats > div:last-child { border-bottom: 0; } }
+  .feat-stat-num { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; background: linear-gradient(135deg, #5FFFCE, #21FFB5); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .feat-stat-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,0.50); margin-top: 6px; }
+
+  .tag-chip { padding: 5px 12px; border-radius: 999px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); font-family: var(--font-mono); font-size: 11.5px; color: rgba(255,255,255,0.75); display: inline-block; transition: all .25s; }
+  .tag-chip:hover { background: rgba(255,255,255,0.06); color: #FFFFFF; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* Right side of feature card: visual + readout */
+  .feat-mark { display: flex; flex-direction: column; gap: 20px; }
+  .feat-mark .mark-canvas-fyp { aspect-ratio: 1/1; padding: 0; overflow: hidden; }
+  .feat-mark .mark-canvas-fyp canvas { width: 100% !important; height: 100% !important; }
+  .feat-mark .mark-svg { aspect-ratio: 1/1; padding: 28px; display: flex; align-items: center; justify-content: center; }
+  .feat-mark .mark-svg svg { width: 100%; height: 100%; }
+  .mark-readout { padding: 20px 22px; }
+  .mark-readout .row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-family: var(--font-mono); font-size: 12px; }
+  .mark-readout .row + .row { border-top: 1px solid rgba(255,255,255,0.10); }
+  .mark-readout .row .key { color: rgba(255,255,255,0.50); letter-spacing: .04em; }
+  .mark-readout .row .val { color: #FFFFFF; font-weight: 500; }
+  .mark-readout .row .val.accent { color: #5FFFCE; }
+  .mark-readout .row .val.teal   { color: #0055FF; }
+
+  /* =========  Paper subsection  ========= */
+  .paper-citation {
+    padding: 22px 26px; border-radius: var(--radius); margin-bottom: 28px;
+    background: linear-gradient(135deg, rgba(33,255,181,0.12), transparent);
+    border-left: 3px solid #21FFB5;
+  }
+  .paper-citation .ptitle { font-size: 16px; font-weight: 600; line-height: 1.45; color: #FFFFFF; }
+  .paper-citation .pauthors { font-family: var(--font-mono); font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 8px; }
+  .paper-citation .pvenue { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.50); margin-top: 4px; }
+  .paper-citation a { color: #5FFFCE; text-decoration: underline; text-underline-offset: 2px; }
+  .paper-citation a:hover { color: #FFFFFF; }
+
+  .paper-progress { padding: 22px 24px; border-radius: var(--radius); margin: 24px 0; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); }
+  .paper-progress h4 { font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; margin: 0 0 14px; color: #FFFFFF; display: flex; align-items: center; gap: 10px; }
+  .paper-progress h4::before { content: ""; width: 8px; height: 8px; background: #0055FF; border-radius: 50%; box-shadow: 0 0 0 3px rgba(0,85,255,0.18), 0 0 12px #0055FF; animation: pulse-teal 2.4s ease-in-out infinite; }
+  @keyframes pulse-teal { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .progress-track { height: 6px; background: rgba(255,255,255,0.06); border-radius: 999px; overflow: hidden; position: relative; }
+  .progress-fill { height: 100%; width: 0; background: linear-gradient(90deg, #21FFB5, #5FFFCE); border-radius: 999px; transition: width 1.6s var(--ease); position: relative; }
+  .progress-fill::after { content: ""; position: absolute; top: 0; right: 0; width: 30px; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5)); animation: progress-shine 2s linear infinite; }
+  @keyframes progress-shine { 0% { transform: translateX(-30px); } 100% { transform: translateX(0); } }
+  .progress-fill.is-visible { width: 78%; }
+  .progress-meta { display: flex; justify-content: space-between; margin-top: 12px; font-family: var(--font-mono); font-size: 11.5px; color: rgba(255,255,255,0.50); }
+  .progress-meta strong { color: #5FFFCE; font-weight: 600; }
+
+  .paper-blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  @media (max-width: 720px) { .paper-blocks { grid-template-columns: 1fr; } }
+  .paper-block h5 { font-family: var(--font-mono); font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: #21FFB5; margin: 0 0 12px; font-weight: 500; }
+  .paper-block p { margin: 0 0 10px; font-size: 14.5px; line-height: 1.65; color: rgba(255,255,255,0.75); font-weight: 300; }
+  .paper-block p strong { color: #FFFFFF; font-weight: 600; }
+  .paper-block ul { margin: 0; padding-left: 20px; font-size: 14.5px; line-height: 1.7; color: rgba(255,255,255,0.75); font-weight: 300; }
+  .paper-block ul li { margin-bottom: 8px; }
+  .paper-block ul li strong { color: #FFFFFF; font-weight: 600; }
+  .paper-block code { font-family: var(--font-mono); font-size: 12.5px; padding: 2px 7px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.10); border-radius: 4px; color: #5FFFCE; }
+
+  /* =========  Open source PR cards  ========= */
+  .oss-sub-head { display: flex; align-items: baseline; gap: 16px; margin: 0 0 22px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.10); flex-wrap: wrap; }
+  .oss-sub-tag { font-family: var(--font-mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: #21FFB5; font-weight: 500; }
+  .oss-sub-meta { font-family: var(--font-mono); font-size: 11.5px; color: rgba(255,255,255,0.50); letter-spacing: .04em; }
+
+  .pr-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  @media (max-width: 900px) { .pr-grid { grid-template-columns: 1fr; } }
+  .pr-grid-single { grid-template-columns: 1fr; max-width: 720px; }
+  .pr {
+    padding: 30px; transition: all .35s var(--ease); display: flex; flex-direction: column;
+    cursor: default; position: relative;
+  }
+  .pr:hover {
+    border-color: rgba(33,255,181,0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 32px rgba(33,255,181,0.12);
+  }
+  .pr-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; position: relative; z-index: 2; }
+  .pr-mark { width: 60px; height: 60px; flex-shrink: 0; }
+  .pr-num { display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em; }
+  .pr-num .id { color: #5FFFCE; font-weight: 500; }
+  .pr-status { display: inline-flex; align-items: center; gap: 6px; color: #0055FF; font-size: 11px; font-family: var(--font-mono); letter-spacing: .05em; }
+  .pr-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #0055FF; box-shadow: 0 0 6px #0055FF; }
+  .pr-title { font-size: 19px; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; margin: 18px 0 12px; color: #FFFFFF; position: relative; z-index: 2; }
+  .pr-desc { color: rgba(255,255,255,0.75); font-size: 14px; line-height: 1.6; flex: 1; font-weight: 300; position: relative; z-index: 2; }
+  .pr-link {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 22px;
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em;
+    color: #5FFFCE; padding-bottom: 4px; border-bottom: 1px solid rgba(33,255,181,0.3);
+    align-self: flex-start; transition: all .25s; position: relative; z-index: 2;
+  }
+  .pr-link:hover { color: #FFFFFF; border-color: #FFFFFF; }
+  .pr code { font-family: var(--font-mono); font-size: 11.5px; padding: 2px 6px; background: rgba(33,255,181,0.12); border-radius: 4px; color: #5FFFCE; }
+  .pr-backports { display: inline-flex; gap: 4px; margin-left: 4px; flex-wrap: wrap; vertical-align: middle; }
+  .pr-backport-tag { font-family: var(--font-mono); font-size: 9.5px; padding: 2px 8px; border-radius: 999px; background: rgba(0,85,255,0.12); border: 1px solid rgba(0,85,255,0.3); color: #0055FF; letter-spacing: .04em; }
+
+  /* =========  Timeline  ========= */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item { display: grid; grid-template-columns: 200px 80px 1fr; gap: 36px; padding: 36px 0; border-top: 1px solid rgba(255,255,255,0.10); transition: padding-left .35s var(--ease); position: relative; }
+  .timeline-item:last-child { border-bottom: 1px solid rgba(255,255,255,0.10); }
+  @media (max-width: 760px) { .timeline-item { grid-template-columns: 1fr; gap: 14px; padding: 28px 0; } .timeline-item .ti-mark { display: none; } }
+  .timeline-item:hover { padding-left: 8px; }
+  .timeline-item:hover .ti-title { color: #5FFFCE; }
+  .ti-time { font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em; color: rgba(255,255,255,0.50); padding-top: 4px; }
+  .ti-mark { width: 80px; height: 80px; }
+  .ti-org { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .12em; color: rgba(255,255,255,0.50); text-transform: uppercase; margin-bottom: 8px; }
+  .ti-title { font-size: clamp(20px, 2vw, 26px); font-weight: 700; line-height: 1.2; letter-spacing: -0.015em; margin: 0 0 6px; transition: color .25s; color: #FFFFFF; }
+  .ti-loc { color: rgba(255,255,255,0.50); font-size: 14px; margin-bottom: 18px; font-family: var(--font-mono); }
+  .ti-body ul { list-style: none; padding: 0; margin: 0; }
+  .ti-body li { position: relative; padding-left: 22px; margin-bottom: 10px; font-size: 15px; line-height: 1.65; color: rgba(255,255,255,0.75); font-weight: 300; }
+  .ti-body li::before { content: ""; position: absolute; left: 0; top: 11px; width: 12px; height: 1px; background: #21FFB5; }
+  .ti-body li strong { color: #FFFFFF; font-weight: 600; }
+  .ti-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+
+  /* =========  Project grid  ========= */
+  .proj-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  @media (max-width: 980px) { .proj-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .proj-grid { grid-template-columns: 1fr; } }
+  .proj {
+    padding: 26px; transition: all .35s var(--ease);
+    display: flex; flex-direction: column; min-height: 240px; position: relative;
+  }
+  .proj:hover {
+    border-color: rgba(33,255,181,0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 28px rgba(33,255,181,0.10);
+  }
+  .proj:hover .proj-title { color: #5FFFCE; }
+  .proj:hover .proj-arrow { color: #5FFFCE; transform: translate(3px,-3px); }
+  .proj-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; position: relative; z-index: 2; }
+  .proj-mark { width: 46px; height: 46px; flex-shrink: 0; opacity: 0.95; }
+  .proj-num { font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,0.50); letter-spacing: .08em; }
+  .proj-arrow { font-family: var(--font-mono); transition: all .3s var(--ease); color: rgba(255,255,255,0.50); position: absolute; right: 18px; bottom: 18px; }
+  .proj-title { font-size: 17px; font-weight: 700; line-height: 1.3; margin: 14px 0 10px; transition: color .25s; color: #FFFFFF; position: relative; z-index: 2; }
+  .proj-desc { color: rgba(255,255,255,0.75); font-size: 14px; line-height: 1.6; flex: 1; font-weight: 300; position: relative; z-index: 2; }
+  .proj-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; position: relative; z-index: 2; }
+
+  /* =========  Skills  ========= */
+  .skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  @media (max-width: 900px) { .skills-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 580px) { .skills-grid { grid-template-columns: 1fr; } }
+  .skill-card { padding: 28px; transition: all .35s var(--ease); }
+  .skill-card:hover { border-color: rgba(33,255,181,0.3); transform: translateY(-2px); }
+  .skill-card .sb-cat { font-family: var(--font-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: #21FFB5; font-weight: 500; }
+  .skill-card .sb-title { font-size: 19px; font-weight: 700; letter-spacing: -0.01em; margin: 6px 0 18px; color: #FFFFFF; }
+  .skill-list { display: flex; flex-wrap: wrap; gap: 6px; position: relative; z-index: 2; }
+
+  /* =========  Honors  ========= */
+  .honors-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+  @media (max-width: 720px) { .honors-grid { grid-template-columns: 1fr; } }
+  .honor { padding: 30px; transition: all .35s var(--ease); position: relative; }
+  .honor:hover { border-color: rgba(33,255,181,0.3); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.35); }
+  .honor-feature {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(33,255,181,0.12) 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+    border-color: rgba(33,255,181,0.3);
+    padding: 40px;
+  }
+  @media (max-width: 720px) { .honor-feature { grid-column: span 1; padding: 30px; } }
+  .honor-year {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px;
+    background: rgba(33,255,181,0.12); color: #5FFFCE;
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; font-weight: 500;
+    margin-bottom: 16px; border: 1px solid rgba(33,255,181,0.3);
+  }
+  .honor-year .badge { color: #E5F95B; font-size: 11px; }
+  .honor h4 { font-size: 19px; font-weight: 700; line-height: 1.3; margin: 0 0 10px; letter-spacing: -0.01em; color: #FFFFFF; }
+  .honor-feature h4 { font-size: clamp(24px, 2.4vw, 32px); margin-bottom: 14px; }
+  .honor p { color: rgba(255,255,255,0.75); font-size: 14.5px; line-height: 1.6; margin: 0; font-weight: 300; }
+  .honor-feature p { font-size: 16px; max-width: 60ch; }
+  .honor p strong { color: #FFFFFF; font-weight: 600; }
+
+  /* =========  Contact  ========= */
+  .contact-grid { display: grid; grid-template-columns: 6fr 5fr; gap: clamp(40px, 6vw, 80px); align-items: start; }
+  @media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; gap: 40px; } }
+  .contact-headline { font-size: clamp(36px, 5.2vw, 60px); font-weight: 700; line-height: 1.05; letter-spacing: -0.03em; margin: 0; color: #FFFFFF; }
+  .contact-headline em { font-style: normal; color: #21FFB5; background: none; -webkit-text-fill-color: #21FFB5; }
+  .contact-blurb { margin-top: 22px; max-width: 480px; color: rgba(255,255,255,0.75); font-size: 17px; line-height: 1.65; font-weight: 300; }
+  .contact-form { margin-top: 36px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+  .field { position: relative; margin-bottom: 16px; }
+  .field input, .field textarea {
+    width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.16); border-radius: 12px;
+    color: #FFFFFF; font-family: var(--font-sans); font-size: 15px;
+    padding: 16px 18px; outline: none; transition: all .25s; resize: none;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+  .field textarea { min-height: 130px; }
+  .field input:focus, .field textarea:focus { border-color: #21FFB5; box-shadow: 0 0 0 3px rgba(33,255,181,0.12); background: rgba(255,255,255,0.06); }
+  .field input::placeholder, .field textarea::placeholder { color: rgba(255,255,255,0.50); }
+  .form-status { font-family: var(--font-mono); font-size: 12.5px; color: #0055FF; margin-top: 14px; min-height: 18px; }
+  .form-status.is-error { color: #5FFFCE; }
+
+  .contact-aside { padding-top: 12px; }
+  .contact-aside .label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,0.50); display: block; margin-bottom: 12px; }
+  .contact-email { font-size: clamp(20px, 2.4vw, 28px); font-weight: 700; color: #FFFFFF; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.16); display: inline-block; transition: all .25s; word-break: break-all; }
+  .contact-email:hover { color: #5FFFCE; border-color: #21FFB5; }
+  .social-links { display: flex; flex-direction: column; gap: 0; margin-top: 36px; border-top: 1px solid rgba(255,255,255,0.10); }
+  .social-link { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; border-bottom: 1px solid rgba(255,255,255,0.10); font-size: 15px; font-weight: 500; transition: padding .3s var(--ease), color .25s; }
+  .social-link:hover { color: #5FFFCE; padding-left: 8px; }
+  .social-link .net { font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,0.50); letter-spacing: .08em; text-transform: uppercase; transition: color .25s; }
+  .social-link:hover .net { color: #5FFFCE; }
+
+  /* =========  Footer  ========= */
+  footer { padding: 36px 0 44px; border-top: 1px solid rgba(255,255,255,0.10); margin-top: 60px; }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 13px; color: rgba(255,255,255,0.50); flex-wrap: wrap; font-family: var(--font-mono); }
+  footer a:hover { color: #5FFFCE; }
+
+  /* =========  Reveal animations  ========= */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 1s var(--ease), transform 1s var(--ease); }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: .08s; }
+  .reveal.delay-2 { transition-delay: .16s; }
+  .reveal.delay-3 { transition-delay: .24s; }
+  .reveal-scale { opacity: 0; transform: scale(0.96); transition: opacity 1s var(--ease), transform 1s var(--ease); }
+  .reveal-scale.is-visible { opacity: 1; transform: scale(1); }
+
+  /* =========  SVG mark animations  ========= */
+  .mk-spin-slow { transform-origin: center; animation: spinSlow 18s linear infinite; }
+  @keyframes spinSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .mk-spin-rev { transform-origin: center; animation: spinSlow 22s linear infinite reverse; }
+  .mk-fan-blades { transform-origin: center; animation: spinFast 10s linear infinite; }
+  @keyframes spinFast { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .mk-electron { transform-origin: center; animation: orbitMove 6s linear infinite; }
+  @keyframes orbitMove { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .mk-curve-draw { stroke-dasharray: 200; stroke-dashoffset: 200; animation: drawCurve 4s var(--ease) infinite; }
+  @keyframes drawCurve { 0% { stroke-dashoffset: 200; } 50% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -200; } }
+  .mk-lidar-ring { transform-origin: center; animation: lidarPulse 2.4s ease-out infinite; }
+  .mk-lidar-ring-2 { animation-delay: 0.8s; }
+  .mk-lidar-ring-3 { animation-delay: 1.6s; }
+  @keyframes lidarPulse { 0% { transform: scale(0.3); opacity: 1; } 100% { transform: scale(1.3); opacity: 0; } }
+  .mk-bar { transform-origin: bottom center; animation: barRise 3.2s ease-in-out infinite; }
+  @keyframes barRise { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.15); } }
+  .mk-pulse { animation: nodePulse 2s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+  @keyframes nodePulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+  .mk-flow { stroke-dasharray: 4 6; animation: flowDash 1.6s linear infinite; }
+  @keyframes flowDash { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -20; } }
+  .mk-peak { animation: peakBreath 3s ease-in-out infinite; transform-origin: center bottom; transform-box: fill-box; }
+  @keyframes peakBreath { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(0.92); } }
+  .mk-twinkle { animation: twinkle 2.4s ease-in-out infinite; }
+  .mk-twinkle.d2 { animation-delay: 0.5s; }
+  .mk-twinkle.d3 { animation-delay: 1.0s; }
+  .mk-twinkle.d4 { animation-delay: 1.5s; }
+  @keyframes twinkle { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ============== NAV ============== -->
+<header class="nav" id="nav">
+  <div class="container nav-inner">
+    <a href="#top" class="brand" aria-label="Ahmed Bilal — home">
+      <span class="brand-mark" aria-hidden="true"></span>
+      Ahmed Bilal
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#fyp">FYP</a>
+      <a href="#paper">Research</a>
+      <a href="#oss">Open source</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a href="#contact" class="btn btn-primary">Get in touch <span class="arrow">→</span></a>
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false"><span></span></button>
+  </div>
+  <div class="nav-mobile" id="navMobile" aria-hidden="true">
+    <a href="#about">About</a>
+    <a href="#fyp">FYP</a>
+    <a href="#paper">Research</a>
+    <a href="#oss">Open source</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+    <a href="#contact" class="btn btn-primary">Get in touch <span class="arrow">→</span></a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ============== HERO — abstract glowing sphere ============== -->
+<section class="hero" id="top">
+  <div class="container">
+    <div class="hero-grid">
+
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <span class="pulse"></span>
+          <span class="star">★</span>
+          <span>MITACS Globalink GRI 2026 · Saint Mary's University</span>
+        </div>
+
+        <h1 class="hero-title">
+          <span class="light">I'm an electrical engineer who builds</span><br>
+          <span class="accent">machine-learning systems</span><br>
+          <span class="light">for the machines themselves.</span>
+        </h1>
+
+        <p class="hero-credentials">
+          Final-year at <strong>NED University</strong>, reproducing state-of-the-art deep-learning prognostics on real rotating machinery — with <strong>four merged PRs to ROOT and ROS&nbsp;2</strong>, and a fully-funded research internship at <strong>Saint Mary's University, Halifax</strong> ahead of me.
+        </p>
+
+        <div class="hero-meta">
+          <span class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+            BE Electrical · NED University
+          </span>
+          <span class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Karachi, PK
+          </span>
+          <span class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            Open to grad-school 2026/27
+          </span>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#fyp" class="btn btn-primary">See the work <span class="arrow">→</span></a>
+          <a href="https://github.com/ahmedbilal9" target="_blank" rel="noopener" class="btn btn-ghost">GitHub <span class="arrow">↗</span></a>
+        </div>
+      </div>
+
+      <!-- BIG ENGINE SHOWCASE inline as hero right column -->
+      <div style="position:relative;width:100%;aspect-ratio:1/1;background:#000d1f;overflow:hidden;border-radius:0;" id="engine3d-stage">
+        <canvas id="engine3d-canvas" style="width:100%!important;height:100%!important;cursor:grab;display:block;"></canvas>
+        <div class="engine-hud engine-hud-tl">
+          <div class="hud-label">RPM</div>
+          <div class="hud-value" id="hud-rpm">12,450</div>
+        </div>
+        <div class="engine-hud engine-hud-tr">
+          <div class="hud-label">HEALTH</div>
+          <div class="hud-value hud-green">NOMINAL</div>
+        </div>
+        <div class="engine-hud engine-hud-bl">
+          <div class="hud-label">TEMP °C</div>
+          <div class="hud-value" id="hud-temp">847</div>
+        </div>
+        <div class="engine-hud engine-hud-br">
+          <div class="hud-label">VIBRATION</div>
+          <div class="hud-value hud-yellow" id="hud-vib">0.42 mm/s</div>
+        </div>
+        <div class="engine-drag-hint">Drag to rotate · Scroll to zoom</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="scroll-hint" aria-hidden="true">
+    <span>Scroll</span>
+    <div class="line"></div>
+  </div>
+</section>
+
+<!-- ============== ENGINE DESCRIPTION + SMALL 3D ============== -->
+<section class="engine-showcase" id="engine-showcase">
+  <div class="engine-showcase-inner">
+    <div class="engine-canvas-wrap" id="hero-turbofan-stage">
+      <canvas id="hero-turbofan-canvas"></canvas>
+      <div class="engine-drag-hint">Drag to rotate · Scroll to zoom</div>
+    </div>
+    <div class="engine-showcase-text">
+      <span class="engine-badge">● LIVE DIGITAL TWIN</span>
+      <h2 class="engine-showcase-title">Physics-informed<br><span class="engine-title-accent">turbofan model</span></h2>
+      <p class="engine-showcase-desc">An interactive 3D representation of the gas turbine digital twin from the FYP. Sensor data streams in at 1 Hz via MQTT — the model tracks blade health, bearing wear, and temperature gradients in real time.</p>
+      <div class="engine-metrics">
+        <div class="engine-metric"><div class="em-num">50K+</div><div class="em-label">Fault events trained</div></div>
+        <div class="engine-metric"><div class="em-num">18</div><div class="em-label">Sensor channels</div></div>
+        <div class="engine-metric"><div class="em-num">3</div><div class="em-label">Machine classes</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== STATS ============== -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid reveal-scale">
+      <div class="stat"><div class="stat-num">04<span>.</span></div><div class="stat-label">Merged PRs · open source</div></div>
+      <div class="stat"><div class="stat-num">50<span>K+</span></div><div class="stat-label">Synthetic fault events · FYP</div></div>
+      <div class="stat"><div class="stat-num">100<span>K</span></div><div class="stat-label">Collision events analysed</div></div>
+      <div class="stat"><div class="stat-num">03<span>.</span></div><div class="stat-label">Research internships</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ABOUT ============== -->
+<section id="about">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">About</span>
+      <h2 class="section-title">Electrical by training. <em>ML by obsession.</em></h2>
+    </div>
+
+    <div class="about-grid">
+      <aside class="about-card glass reveal">
+        <span class="label">At a glance</span>
+        <dl>
+          <dt>Education</dt>
+          <dd>BE Electrical · NED University<br><span class="meta">Final year</span></dd>
+          <dt>Final-year project</dt>
+          <dd>Digital twin for rotating machinery<br><span class="meta">w/ Shaft Turbo Machinery Solutions Europe</span></dd>
+          <dt>Active research</dt>
+          <dd>Reproducing Sun et&nbsp;al. (2023)<br><span class="meta">Deep-learning prognostics · RESS</span></dd>
+          <dt>Heading next</dt>
+          <dd>MITACS Globalink GRI 2026<br><span class="meta">Saint Mary's University, Halifax</span></dd>
+        </dl>
+      </aside>
+
+      <div class="about-body">
+        <p class="reveal">My field has always been physical: motors, switchgear, microcontrollers. But the questions I keep coming back to aren't really electrical — they're <strong>statistical</strong>. How long before this bearing fails? Is this signal a fault, or just noise? What does this engine's healthy behaviour actually look like, and when does it start to drift?</p>
+
+        <p class="reveal delay-1">So I've spent the last two years moving deeper into <strong>machine learning for physical systems</strong> — Bayesian uncertainty on dielectron data, sensor-fusion SLAM, and now an industrial-grade digital twin for my final-year project, modelled on the most recent prognostics literature.</p>
+
+        <p class="pull reveal delay-2">"I'm not interested in ML as an abstract object. I want it to know my machines as well as my machines know themselves."</p>
+
+        <p class="reveal delay-3">When I'm not building, I'm contributing to the open-source scientific tools I rely on — <strong>three merged PRs to ROOT</strong> and <strong>one to the ROS&nbsp;2 controllers</strong> stack. In April 2026 I head to <strong>Saint Mary's University, Halifax</strong> on the <strong>MITACS Globalink Research Internship</strong> for multi-sensor SLAM on mobile robots — a competitive program funded by the Government of Canada.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FYP ============== -->
+<section id="fyp">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Final year project · 2025–26</span>
+      <h2 class="section-title">A SCADA-grade <em>digital twin</em> for rotating machinery.</h2>
+    </div>
+
+    <div class="feature-card glass reveal">
+      <div class="feat-grid">
+        <div>
+          <div class="feat-tag"><span class="dot"></span> In progress · Industry collaboration</div>
+          <h3 class="feat-title">Predictive Maintenance Platform</h3>
+          <div class="feat-collab">In collaboration with <strong>Shaft Turbo Machinery Solutions Europe</strong></div>
+
+          <p class="feat-desc">Three classes of rotating machinery — <strong>gas turbines, steam turbines, and centrifugal pumps</strong> — each modelled with a physics-informed digital twin for real-time fault detection and degradation tracking. An MQTT–FastAPI sensor pipeline ingests live parameters; a Raspberry Pi dashboard surfaces equipment health and supports off-site experimentation via Tailscale. <strong>50K+ labelled synthetic fault events</strong> drive the predictive-maintenance and remaining-useful-life models.</p>
+
+          <div class="feat-stats">
+            <div><div class="feat-stat-num">50K+</div><div class="feat-stat-label">Synthetic fault events</div></div>
+            <div><div class="feat-stat-num">3</div><div class="feat-stat-label">Machine classes</div></div>
+            <div><div class="feat-stat-num">SCADA</div><div class="feat-stat-label">Architecture pattern</div></div>
+          </div>
+
+          <div class="tag-row">
+            <span class="tag-chip">FastAPI</span>
+            <span class="tag-chip">MQTT</span>
+            <span class="tag-chip">Raspberry Pi</span>
+            <span class="tag-chip">Tailscale</span>
+            <span class="tag-chip">RUL modelling</span>
+            <span class="tag-chip">Physics-informed ML</span>
+            <span class="tag-chip">Python</span>
+          </div>
+        </div>
+
+        <div class="feat-mark">
+          <!-- 3D turbofan now lives here in the FYP -->
+          <div class="glass mark-canvas-fyp" id="turbofan-stage" aria-hidden="true">
+            <canvas id="turbofan-canvas"></canvas>
+          </div>
+          <div class="glass mark-readout" aria-hidden="true">
+            <div class="row"><span class="key">stream</span><span class="val">mqtt://twin/turbine_1</span></div>
+            <div class="row"><span class="key">sample rate</span><span class="val accent">1 Hz · 18 channels</span></div>
+            <div class="row"><span class="key">health state</span><span class="val teal">● nominal</span></div>
+            <div class="row"><span class="key">RUL estimate</span><span class="val">— · training</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== PAPER ============== -->
+<section id="paper">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Active research</span>
+      <h2 class="section-title">Reproducing the <em>state-of-the-art</em> in deep-learning prognostics.</h2>
+      <p class="section-sub">Faithfully reimplementing the best purely data-driven RUL predictor on N-CMAPSS, then extending it for the FYP's pumps and steam turbines.</p>
+    </div>
+
+    <div class="feature-card glass reveal">
+      <div class="feat-grid">
+        <div>
+          <div class="paper-citation">
+            <div class="ptitle">Deep learning framework for gas turbine performance digital twin and degradation prognostics from airline operator perspective</div>
+            <div class="pauthors">Sun, J., Yan, Z., Han, Y., Zhu, X., Yang, C.</div>
+            <div class="pvenue">Reliability Engineering &amp; System Safety, Vol.&nbsp;238 (2023) · <a href="https://doi.org/10.1016/j.ress.2023.109404" target="_blank" rel="noopener">DOI: 10.1016/j.ress.2023.109404 ↗</a></div>
+          </div>
+
+          <div class="paper-progress">
+            <h4>Reproduction in progress</h4>
+            <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-meta">
+              <span>LSTM-AE digital twin reproduced · CNN tuning</span>
+              <span><strong>~78%</strong></span>
+            </div>
+          </div>
+
+          <div class="paper-blocks">
+            <div class="paper-block">
+              <h5>What I'm reproducing</h5>
+              <ul>
+                <li>Two-stage framework: <strong>LSTM-Autoencoder</strong> Performance Digital Twin (healthy data only) plus a <strong>1D-CNN</strong> RUL predictor.</li>
+                <li>Domain knowledge integration: climbing-stage data, normalised RUL labels, output filtering — exactly as in the paper.</li>
+                <li>Evaluation on <strong>N-CMAPSS DS02</strong> (NASA + ETH Zurich + PARC) — full-flight turbofan data with HPT/LPT failures.</li>
+              </ul>
+            </div>
+            <div class="paper-block">
+              <h5>The benchmark</h5>
+              <p>Sun et al. report <strong>RMSE = 2.86</strong> on DS02 after the smoothing step — the best purely data-driven result published, ahead of Deep Gaussian Processes (7.31), Transformer (6.29), and CNN-LSTM (6.66).</p>
+              <p>My reproduction matches the paper's PDT reconstruction error within tolerance; CNN tuning underway.</p>
+            </div>
+            <div class="paper-block">
+              <h5>What I'm extending</h5>
+              <ul>
+                <li>Porting the framework from N-CMAPSS turbofans to the <strong>steam turbines and centrifugal pumps</strong> in the FYP.</li>
+                <li>Tackling the paper's stated open problem — handling <strong>performance recovery from periodic maintenance</strong> (e.g. on-wing water washing).</li>
+                <li>Adding <strong>Bayesian uncertainty</strong> via MC Dropout — building on prior dielectron work.</li>
+              </ul>
+            </div>
+            <div class="paper-block">
+              <h5>Stack</h5>
+              <p>PyTorch · Keras · NumPy · pandas · scikit-learn · Matplotlib. Trained locally on a single GPU; pipeline scripted for reproducibility on the FYP Raspberry Pi for inference.</p>
+              <div class="tag-row" style="margin-top:14px;">
+                <span class="tag-chip">LSTM-AE</span><span class="tag-chip">1D-CNN</span><span class="tag-chip">N-CMAPSS</span><span class="tag-chip">RUL</span><span class="tag-chip">PyTorch</span><span class="tag-chip">MC Dropout</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feat-mark">
+          <div class="glass mark-svg" aria-hidden="true">
+            <svg viewBox="0 0 200 200">
+              <defs>
+                <linearGradient id="curveGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#21FFB5"/>
+                  <stop offset="1" stop-color="#0055FF"/>
+                </linearGradient>
+              </defs>
+              <g stroke="rgba(255,255,255,0.06)" stroke-width="1">
+                <line x1="20" y1="40"  x2="180" y2="40"/>
+                <line x1="20" y1="80"  x2="180" y2="80"/>
+                <line x1="20" y1="120" x2="180" y2="120"/>
+                <line x1="20" y1="160" x2="180" y2="160"/>
+                <line x1="20"  y1="20" x2="20"  y2="180"/>
+                <line x1="60"  y1="20" x2="60"  y2="180"/>
+                <line x1="100" y1="20" x2="100" y2="180"/>
+                <line x1="140" y1="20" x2="140" y2="180"/>
+                <line x1="180" y1="20" x2="180" y2="180"/>
+              </g>
+              <line x1="20" y1="180" x2="180" y2="180" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+              <line x1="20" y1="20"  x2="20"  y2="180" stroke="rgba(255,255,255,0.25)" stroke-width="1.5"/>
+              <g fill="rgba(0,85,255,0.8)">
+                <circle cx="30"  cy="40"  r="2"/><circle cx="42" cy="45" r="2"/><circle cx="55"  cy="52"  r="2"/>
+                <circle cx="68"  cy="60"  r="2"/><circle cx="82" cy="68" r="2"/><circle cx="95"  cy="78"  r="2"/>
+                <circle cx="108" cy="90"  r="2"/><circle cx="121" cy="105" r="2"/><circle cx="135" cy="120" r="2"/>
+                <circle cx="148" cy="135" r="2"/><circle cx="161" cy="152" r="2"/><circle cx="172" cy="170" r="2"/>
+              </g>
+              <path d="M30 42 Q 80 55, 110 95 T 172 170" fill="none" stroke="url(#curveGrad)" stroke-width="2.5" stroke-linecap="round" class="mk-curve-draw"/>
+              <text x="20" y="14" font-family="JetBrains Mono" font-size="8" fill="rgba(255,255,255,0.5)">RUL</text>
+              <text x="160" y="195" font-family="JetBrains Mono" font-size="8" fill="rgba(255,255,255,0.5)">cycle</text>
+            </svg>
+          </div>
+          <div class="glass mark-readout" aria-hidden="true">
+            <div class="row"><span class="key">model</span><span class="val">LSTM-AE + 1D-CNN</span></div>
+            <div class="row"><span class="key">target</span><span class="val accent">RMSE 2.86</span></div>
+            <div class="row"><span class="key">current</span><span class="val">RMSE ≈ 3.4 · tuning</span></div>
+            <div class="row"><span class="key">dataset</span><span class="val teal">N-CMAPSS DS02</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== OPEN SOURCE ============== -->
+<section id="oss">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Open source</span>
+      <h2 class="section-title">Four merged PRs across <em>ROOT</em> and <em>ROS&nbsp;2</em>.</h2>
+      <p class="section-sub">Two of the most important pieces of open-source infrastructure in my fields. Contributing to either is a matter of navigating multi-million-line codebases, defending changes through multi-reviewer processes, and writing tests that ship to thousands of downstream users.</p>
+    </div>
+
+    <div class="oss-sub-head reveal"><span class="oss-sub-tag">01 / ROOT</span><span class="oss-sub-meta">Data-analysis framework · ~3M LOC C++ · used at the LHC</span></div>
+
+    <div class="pr-grid">
+
+      <article class="pr glass reveal">
+        <div class="pr-head">
+          <div class="pr-num"><span class="id">PR #20798</span></div>
+          <svg class="pr-mark" viewBox="0 0 60 60" aria-hidden="true">
+            <g class="mk-spin-slow">
+              <ellipse cx="30" cy="30" rx="22" ry="9" fill="none" stroke="rgba(33,255,181,0.6)" stroke-width="1"/>
+              <ellipse cx="30" cy="30" rx="22" ry="9" fill="none" stroke="rgba(33,255,181,0.6)" stroke-width="1" transform="rotate(60 30 30)"/>
+              <ellipse cx="30" cy="30" rx="22" ry="9" fill="none" stroke="rgba(33,255,181,0.6)" stroke-width="1" transform="rotate(-60 30 30)"/>
+            </g>
+            <g class="mk-electron"><circle cx="52" cy="30" r="2.5" fill="#5FFFCE"/></g>
+            <circle cx="30" cy="30" r="3.5" fill="#21FFB5"/>
+          </svg>
+        </div>
+        <span class="pr-status" style="margin-top: 14px;">Merged</span>
+        <h3 class="pr-title">Chi² residual fix for multi-dimensional histograms</h3>
+        <p class="pr-desc">Identified and fixed an incorrect residual calculation in the <code>Chi2Test</code> routine that affected goodness-of-fit comparisons on N-dimensional histograms — used across HEP analyses for hypothesis testing.</p>
+        <a class="pr-link" href="https://github.com/root-project/root/pull/20798" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>
+      </article>
+
+      <article class="pr glass reveal delay-1">
+        <div class="pr-head">
+          <div class="pr-num"><span class="id">PR #20499</span></div>
+          <svg class="pr-mark" viewBox="0 0 60 60" aria-hidden="true">
+            <rect x="14" y="10" width="30" height="40" rx="3" fill="none" stroke="rgba(33,255,181,0.6)" stroke-width="1.5"/>
+            <line x1="20" y1="20" x2="38" y2="20" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+            <line x1="20" y1="26" x2="32" y2="26" stroke="rgba(255,255,255,0.4)" stroke-width="1.2"/>
+            <line x1="20" y1="32" x2="38" y2="32" stroke="#21FFB5" stroke-width="1.5" class="mk-flow"/>
+            <line x1="20" y1="38" x2="34" y2="38" stroke="#21FFB5" stroke-width="1.5" class="mk-flow"/>
+            <circle cx="46" cy="46" r="2" fill="#0055FF" class="mk-pulse"/>
+          </svg>
+        </div>
+        <span class="pr-status" style="margin-top: 14px;">Merged</span>
+        <h3 class="pr-title">Honour system umask across I/O modules</h3>
+        <p class="pr-desc">Refactored file-permission handling so ROOT's I/O subsystems correctly respect the OS-level umask. Improves multi-user reproducibility on shared compute clusters typical of physics labs.</p>
+        <a class="pr-link" href="https://github.com/root-project/root/pull/20499" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>
+      </article>
+
+      <article class="pr glass reveal delay-2">
+        <div class="pr-head">
+          <div class="pr-num"><span class="id">PR #20345</span></div>
+          <svg class="pr-mark" viewBox="0 0 60 60" aria-hidden="true">
+            <g class="mk-spin-slow" stroke="rgba(33,255,181,0.7)" stroke-width="1.2" fill="none">
+              <path d="M18 20 L42 20 L42 44 L18 44 Z"/>
+              <path d="M24 14 L48 14 L48 38 L42 44"/>
+              <path d="M18 20 L24 14"/>
+              <path d="M42 20 L48 14"/>
+              <path d="M42 44 L48 38"/>
+            </g>
+            <circle cx="30" cy="30" r="2" fill="#21FFB5" class="mk-pulse"/>
+          </svg>
+        </div>
+        <span class="pr-status" style="margin-top: 14px;">Merged</span>
+        <h3 class="pr-title">Precision-loss fix in GDML geometry exports</h3>
+        <p class="pr-desc">Diagnosed a floating-point rounding issue in GDML geometry serialization that subtly distorted exported detector geometries. Patched the export path to preserve double precision throughout.</p>
+        <a class="pr-link" href="https://github.com/root-project/root/pull/20345" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>
+      </article>
+
+    </div>
+
+    <div class="oss-sub-head reveal" style="margin-top: 64px;"><span class="oss-sub-tag">02 / ros2_controllers</span><span class="oss-sub-meta">ROS 2 · controller stack used by most modern research robots</span></div>
+
+    <div class="pr-grid pr-grid-single">
+      <article class="pr glass reveal">
+        <div class="pr-head">
+          <div class="pr-num"><span class="id">PR #2327</span></div>
+          <svg class="pr-mark" viewBox="0 0 60 60" aria-hidden="true">
+            <circle cx="20" cy="20" r="5" fill="none" stroke="rgba(33,255,181,0.7)" stroke-width="1.5"/>
+            <circle cx="40" cy="40" r="5" fill="none" stroke="rgba(33,255,181,0.7)" stroke-width="1.5"/>
+            <line x1="22.5" y1="22.5" x2="37.5" y2="37.5" stroke="#21FFB5" stroke-width="1.5" class="mk-flow"/>
+            <circle cx="20" cy="20" r="2" fill="#21FFB5" class="mk-pulse"/>
+            <circle cx="40" cy="40" r="2" fill="#0055FF" class="mk-pulse"/>
+            <text x="14" y="50" font-family="JetBrains Mono" font-size="6" fill="rgba(33,255,181,0.7)">JTC</text>
+          </svg>
+        </div>
+        <span class="pr-status" style="margin-top: 14px;">Merged · 2026-04-25</span>
+        <h3 class="pr-title">Fix JTC userdoc YAML indentation &amp; stray quote</h3>
+        <p class="pr-desc">Fixed invalid YAML indentation in the <code>joint_trajectory_controller</code> docs example config and removed a stray trailing quote in a state-interface restriction bullet. Backported across three active ROS&nbsp;2 distributions: <span class="pr-backports"><span class="pr-backport-tag">humble</span><span class="pr-backport-tag">jazzy</span><span class="pr-backport-tag">kilted</span></span></p>
+        <a class="pr-link" href="https://github.com/ros-controls/ros2_controllers/pull/2327" target="_blank" rel="noopener">View on GitHub <span aria-hidden="true">↗</span></a>
+      </article>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============== TIMELINE ============== -->
+<section id="research-exp">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Research experience</span>
+      <h2 class="section-title">Three labs.<br><em>Sensors, systems, statistics.</em></h2>
+    </div>
+
+    <div class="timeline">
+
+      <article class="timeline-item reveal">
+        <div class="ti-time">Dec 2025 — Jan 2026 <span style="display:inline-flex;align-items:center;gap:5px;margin-left:8px;padding:2px 10px;border-radius:999px;background:rgba(33,255,181,0.12);border:1px solid rgba(33,255,181,0.35);font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;color:#21FFB5;text-transform:uppercase;vertical-align:middle;">✓ Completed</span></div>
+        <div class="ti-mark" aria-hidden="true">
+          <svg viewBox="0 0 80 80">
+            <line x1="8" y1="68" x2="72" y2="68" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <g fill="rgba(0,85,255,0.6)">
+              <rect x="12" y="60" width="6" height="8"/>
+              <rect x="20" y="56" width="6" height="12"/>
+              <rect x="28" y="50" width="6" height="18"/>
+              <rect x="36" y="32" width="6" height="36" class="mk-bar"/>
+              <rect x="44" y="46" width="6" height="22"/>
+              <rect x="52" y="56" width="6" height="12"/>
+              <rect x="60" y="62" width="6" height="6"/>
+            </g>
+            <path d="M10 66 Q 25 64, 35 30 Q 45 64, 70 66" fill="none" stroke="#21FFB5" stroke-width="1.8" class="mk-peak"/>
+          </svg>
+        </div>
+        <div>
+          <div class="ti-org">National Centre for Physics · Islamabad, PK</div>
+          <h3 class="ti-title">Research Intern — High-Energy Physics &amp; Bayesian ML</h3>
+          <div class="ti-loc">CMS collaboration · Phase-2 detector commissioning</div>
+          <div class="ti-body">
+            <ul>
+              <li>Built a multi-algorithm <strong>anomaly detection pipeline on 100K dielectron collision events</strong>, automating identification of Z boson and J/ψ resonances against QCD background.</li>
+              <li>Measured the <strong>Z boson mass at 91.20 ± 0.08 GeV</strong> using Bayesian neural networks with Monte Carlo Dropout (R² = 0.94).</li>
+              <li>Conducted <strong>micrometer-level metrology</strong> on Phase-2 silicon detector modules using the needle method.</li>
+              <li>Validated all results via sideband subtraction, bootstrap uncertainty, and conservation-law consistency.</li>
+            </ul>
+            <div class="ti-tags"><span class="tag-chip">Bayesian NNs</span><span class="tag-chip">MC Dropout</span><span class="tag-chip">ROOT</span><span class="tag-chip">Metrology</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="timeline-item reveal">
+        <div class="ti-time">Jul — Aug 2025</div>
+        <div class="ti-mark" aria-hidden="true">
+          <svg viewBox="0 0 80 80">
+            <g fill="none" stroke="#21FFB5" stroke-width="1.5">
+              <circle cx="40" cy="40" r="8"  class="mk-lidar-ring"/>
+              <circle cx="40" cy="40" r="8"  class="mk-lidar-ring mk-lidar-ring-2"/>
+              <circle cx="40" cy="40" r="8"  class="mk-lidar-ring mk-lidar-ring-3"/>
+            </g>
+            <circle cx="40" cy="40" r="4" fill="#21FFB5"/>
+            <g stroke="rgba(0,85,255,0.5)" stroke-width="1">
+              <line x1="40" y1="40" x2="64" y2="20"/>
+              <line x1="40" y1="40" x2="68" y2="40"/>
+              <line x1="40" y1="40" x2="64" y2="60"/>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <div class="ti-org">IRL–NCAI Lab, NUST · Islamabad, PK</div>
+          <h3 class="ti-title">Research Intern — Autonomous Robotics &amp; Sensor Fusion</h3>
+          <div class="ti-loc">Intelligent Robotics Laboratory · ROS 2 Jazzy</div>
+          <div class="ti-body">
+            <ul>
+              <li>Stood up <strong>ROS 2 Jazzy + Gazebo Harmonic</strong> on Ubuntu 24.04 to model differential-drive and TurtleBot4 platforms.</li>
+              <li>Integrated <strong>LiDAR, IMU, and camera</strong> for multi-modal sensor fusion; benchmarked SLAM localisation across configurations.</li>
+              <li>Diagnosed URDF inconsistencies, TF tree misalignments, and topic-mapping bugs to stabilise Nav2 simulations.</li>
+            </ul>
+            <div class="ti-tags"><span class="tag-chip">ROS 2</span><span class="tag-chip">Nav2</span><span class="tag-chip">SLAM</span><span class="tag-chip">Sensor fusion</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="timeline-item reveal">
+        <div class="ti-time">Dec 2024 — Jan 2025</div>
+        <div class="ti-mark" aria-hidden="true">
+          <svg viewBox="0 0 80 80">
+            <rect x="14" y="14" width="52" height="52" rx="4" fill="none" stroke="rgba(33,255,181,0.5)" stroke-width="1.2"/>
+            <circle cx="40" cy="40" r="14" fill="none" stroke="#21FFB5" stroke-width="1.5" class="mk-spin-slow"/>
+            <circle cx="40" cy="40" r="6" fill="#21FFB5"/>
+            <g stroke="rgba(0,85,255,0.6)" stroke-width="1.2">
+              <line x1="14" y1="40" x2="20" y2="40"/>
+              <line x1="60" y1="40" x2="66" y2="40"/>
+              <line x1="40" y1="14" x2="40" y2="20"/>
+              <line x1="40" y1="60" x2="40" y2="66"/>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <div class="ti-org">NCAI Smart City Lab, NED UET · Karachi, PK</div>
+          <h3 class="ti-title">Research Intern — Autonomous EV Control &amp; Embedded Systems</h3>
+          <div class="ti-loc">Autonomous electric vehicle · Hector SLAM</div>
+          <div class="ti-body">
+            <ul>
+              <li>Designed the <strong>primary electronic control circuitry</strong> of an autonomous EV — motor drivers, sensors, actuators — schematic to working prototype.</li>
+              <li>Integrated <strong>RPLiDAR with ROS</strong> running Hector SLAM for real-time 2D mapping.</li>
+              <li>Improved navigation responsiveness through hardware–software co-design and embedded parameter tuning.</li>
+            </ul>
+            <div class="ti-tags"><span class="tag-chip">RPLiDAR</span><span class="tag-chip">Hector SLAM</span><span class="tag-chip">Embedded C</span></div>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============== PROJECTS ============== -->
+<section id="projects">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Selected projects</span>
+      <h2 class="section-title">A wider <em>portfolio</em>.</h2>
+      <p class="section-sub">From power-system protection in ETAP to ensemble ML on Pakistani agricultural data — work that spans the full electrical-engineering stack.</p>
+    </div>
+
+    <div class="proj-grid">
+
+      <a href="https://github.com/ahmedbilal9/Microcontroller-based-DC-Motor-Speed-control-with-encoder-utilizing-3-phase-AC" target="_blank" rel="noopener" class="proj glass reveal">
+        <div class="proj-head">
+          <span class="proj-num">01</span>
+          <svg class="proj-mark" viewBox="0 0 44 44" aria-hidden="true">
+            <circle cx="22" cy="22" r="16" fill="none" stroke="rgba(33,255,181,0.5)" stroke-width="1.5"/>
+            <g class="mk-spin-slow"><circle cx="22" cy="6"  r="2" fill="#21FFB5"/><circle cx="38" cy="22" r="2" fill="#21FFB5"/><circle cx="22" cy="38" r="2" fill="#21FFB5"/><circle cx="6"  cy="22" r="2" fill="#21FFB5"/></g>
+            <circle cx="22" cy="22" r="3" fill="#21FFB5"/>
+          </svg>
+        </div>
+        <h3 class="proj-title">DC Motor Speed Control · Encoder + 3-φ Rectifier</h3>
+        <p class="proj-desc">Closed-loop speed control with encoder feedback and thyristor firing-angle regulation — analogous to industrial drives in pumps and compressors.</p>
+        <div class="proj-tags"><span class="tag-chip">Embedded C</span><span class="tag-chip">Thyristors</span></div>
+        <span class="proj-arrow">↗</span>
+      </a>
+
+      <a href="https://github.com/ahmedbilal9" target="_blank" rel="noopener" class="proj glass reveal delay-1">
+        <div class="proj-head">
+          <span class="proj-num">02</span>
+          <svg class="proj-mark" viewBox="0 0 44 44" aria-hidden="true">
+            <g stroke="rgba(33,255,181,0.6)" stroke-width="1.4" fill="none">
+              <path d="M8 22 L16 22 L16 12 L28 12 L28 32 L36 32"/>
+              <circle cx="16" cy="22" r="2" fill="#21FFB5"/>
+              <circle cx="28" cy="12" r="2" fill="#21FFB5" class="mk-pulse"/>
+              <circle cx="28" cy="32" r="2" fill="#0055FF" class="mk-pulse"/>
+            </g>
+          </svg>
+        </div>
+        <h3 class="proj-title">Power System Protection · ETAP</h3>
+        <p class="proj-desc">Fault analysis, relay coordination, and load-flow studies — the toolset used in oil &amp; gas electrical infrastructure.</p>
+        <div class="proj-tags"><span class="tag-chip">ETAP</span><span class="tag-chip">Relay coord.</span></div>
+        <span class="proj-arrow">↗</span>
+      </a>
+
+      <a href="https://github.com/ahmedbilal9/Real-Time-Temperature-Humidity-Monitoring-System-using-ATmega328p" target="_blank" rel="noopener" class="proj glass reveal delay-2">
+        <div class="proj-head">
+          <span class="proj-num">03</span>
+          <svg class="proj-mark" viewBox="0 0 44 44" aria-hidden="true">
+            <rect x="10" y="14" width="24" height="16" rx="2" fill="none" stroke="rgba(33,255,181,0.6)" stroke-width="1.3"/>
+            <g stroke="#21FFB5" stroke-width="1" class="mk-flow">
+              <line x1="6"  y1="22" x2="10" y2="22"/>
+              <line x1="34" y1="22" x2="38" y2="22"/>
+            </g>
+            <circle cx="22" cy="22" r="2" fill="#0055FF" class="mk-pulse"/>
+          </svg>
+        </div>
+        <h3 class="proj-title">Real-time T &amp; RH Monitoring · ATmega328p</h3>
+        <p class="proj-desc">SHT/HTU sensors over I²C with an ESP8266 web server — IoT visualisation without the cloud-bloat.</p>
+        <div class="proj-tags"><span class="tag-chip">ATmega328p</span><span class="tag-chip">ESP8266</span></div>
+        <span class="proj-arrow">↗</span>
+      </a>
+
+      <a href="https://github.com/ahmedbilal9/Pakistan-Crop-Yield-Prediction" target="_blank" rel="noopener" class="proj glass reveal">
+        <div class="proj-head">
+          <span class="proj-num">04</span>
+          <svg class="proj-mark" viewBox="0 0 44 44" aria-hidden="true">
+            <g fill="rgba(33,255,181,0.6)">
+              <rect x="6"  y="28" width="4" height="10" class="mk-bar"/>
+              <rect x="14" y="22" width="4" height="16" class="mk-bar"/>
+              <rect x="22" y="14" width="4" height="24" class="mk-bar"/>
+              <rect x="30" y="20" width="4" height="18" class="mk-bar"/>
+              <rect x="38" y="10" width="4" height="28" class="mk-bar"/>
+            </g>
+            <line x1="2" y1="38" x2="44" y2="38" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+          </svg>
+        </div>
+        <h3 class="proj-title">Pakistan Crop Yield Prediction</h3>
+        <p class="proj-desc">Random Forest + XGBoost ensemble on national agricultural datasets. <strong>R² &gt; 0.98</strong> with feature engineering on yield drivers.</p>
+        <div class="proj-tags"><span class="tag-chip">XGBoost</span><span class="tag-chip">Random Forest</span></div>
+        <span class="proj-arrow">↗</span>
+      </a>
+
+      <a href="https://github.com/ahmedbilal9/Crop-Production-Prediction-in-India-using-Machine-Learning" target="_blank" rel="noopener" class="proj glass reveal delay-1">
+        <div class="proj-head">
+          <span class="proj-num">05</span>
+          <svg class="proj-mark" viewBox="0 0 44 44" aria-hidden="true">
+            <g fill="none" stroke="rgba(33,255,181,0.6)" stroke-width="1.3">
+              <path d="M22 6 L22 38 M14 14 L22 22 L30 14 M14 30 L22 22 L30 30"/>
+            </g>
+            <circle cx="22" cy="22" r="3" fill="#21FFB5"/>
+            <circle cx="14" cy="14" r="2" fill="#0055FF" class="mk-pulse"/>
+            <circle cx="30" cy="30" r="2" fill="#0055FF" class="mk-pulse"/>
+          </svg>
+        </div>
+        <h3 class="proj-title">Crop Production Forecasting · India</h3>
+        <p class="proj-desc"><strong>R² = 0.998</strong> with Random Forest after feature engineering — outperforming Decision Tree, XGBoost, and Linear baselines.</p>
+        <div class="proj-tags"><span class="tag-chip">Scikit-learn</span><span class="tag-chip">Feature eng.</span></div>
+        <span class="proj-arrow">↗</span>
+      </a>
+
+      <a href="https://github.com/ahmedbilal9/Resonance-Peak-Detection-with-Bayesian-Uncertainty-Quantification" target="_blank" rel="noopener" class="proj glass reveal delay-2">
+        <div class="proj-head">
+          <span class="proj-num">06</span>
+          <svg class="proj-mark" viewBox="0 0 44 44" aria-hidden="true">
+            <line x1="4" y1="36" x2="40" y2="36" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+            <path d="M6 36 Q 18 34, 22 10 Q 26 34, 38 36" fill="none" stroke="#21FFB5" stroke-width="1.6" class="mk-peak"/>
+            <g fill="rgba(0,85,255,0.6)"><circle cx="10" cy="34" r="1.2"/><circle cx="14" cy="32" r="1.2"/><circle cx="18" cy="26" r="1.2"/><circle cx="22" cy="14" r="1.2"/><circle cx="26" cy="26" r="1.2"/><circle cx="30" cy="32" r="1.2"/><circle cx="34" cy="34" r="1.2"/></g>
+          </svg>
+        </div>
+        <h3 class="proj-title">Resonance Peak Detection · Bayesian</h3>
+        <p class="proj-desc">Z-boson and J/ψ identification on 100K events with Bayesian NN + MC Dropout. <strong>Z mass: 91.20 ± 0.08 GeV.</strong></p>
+        <div class="proj-tags"><span class="tag-chip">Bayesian NN</span><span class="tag-chip">ROOT</span></div>
+        <span class="proj-arrow">↗</span>
+      </a>
+
+      <a href="https://github.com/ahmedbilal9/IoT-Enabled-RFID-Attendance-System-with-Secure-Cloud-Integration" target="_blank" rel="noopener" class="proj glass reveal">
+        <div class="proj-head">
+          <span class="proj-num">07</span>
+          <svg class="proj-mark" viewBox="0 0 44 44" aria-hidden="true">
+            <g fill="none" stroke="rgba(33,255,181,0.6)" stroke-width="1.3">
+              <circle cx="22" cy="22" r="3" fill="#21FFB5"/>
+              <path d="M14 22 a8 8 0 0 1 16 0" class="mk-lidar-ring"/>
+              <path d="M10 22 a12 12 0 0 1 24 0" class="mk-lidar-ring mk-lidar-ring-2"/>
+              <path d="M6 22 a16 16 0 0 1 32 0" class="mk-lidar-ring mk-lidar-ring-3"/>
+            </g>
+          </svg>
+        </div>
+        <h3 class="proj-title">IoT RFID Attendance System</h3>
+        <p class="proj-desc">Arduino-based real-time logging with secure cloud integration and a companion mobile app for instant updates.</p>
+        <div class="proj-tags"><span class="tag-chip">Arduino</span><span class="tag-chip">RFID</span></div>
+        <span class="proj-arrow">↗</span>
+      </a>
+
+      <a href="https://github.com/ahmedbilal9/Healthcare-Analysis-and-Prediction-" target="_blank" rel="noopener" class="proj glass reveal delay-1">
+        <div class="proj-head">
+          <span class="proj-num">08</span>
+          <svg class="proj-mark" viewBox="0 0 44 44" aria-hidden="true">
+            <g fill="none" stroke="rgba(33,255,181,0.6)" stroke-width="1.3">
+              <circle cx="14" cy="14" r="3"/>
+              <circle cx="30" cy="14" r="3"/>
+              <circle cx="22" cy="30" r="3"/>
+              <line x1="14" y1="17" x2="22" y2="27"/>
+              <line x1="30" y1="17" x2="22" y2="27"/>
+              <line x1="14" y1="14" x2="30" y2="14" stroke-dasharray="2 2"/>
+            </g>
+            <circle cx="14" cy="14" r="1.5" fill="#21FFB5" class="mk-pulse"/>
+            <circle cx="30" cy="14" r="1.5" fill="#21FFB5" class="mk-pulse"/>
+            <circle cx="22" cy="30" r="1.5" fill="#0055FF" class="mk-pulse"/>
+          </svg>
+        </div>
+        <h3 class="proj-title">Healthcare Analysis &amp; Prediction</h3>
+        <p class="proj-desc">EDA, feature pipelines, and classifier comparison across healthcare datasets — pattern discovery and outcome prediction.</p>
+        <div class="proj-tags"><span class="tag-chip">Pandas</span><span class="tag-chip">Scikit-learn</span></div>
+        <span class="proj-arrow">↗</span>
+      </a>
+
+      <a href="https://github.com/ahmedbilal9" target="_blank" rel="noopener" class="proj glass reveal delay-2">
+        <div class="proj-head">
+          <span class="proj-num">09</span>
+          <svg class="proj-mark" viewBox="0 0 44 44" aria-hidden="true">
+            <g class="mk-spin-slow">
+              <line x1="22" y1="6"  x2="22" y2="14" stroke="#21FFB5" stroke-width="2" stroke-linecap="round"/>
+              <line x1="22" y1="30" x2="22" y2="38" stroke="#21FFB5" stroke-width="2" stroke-linecap="round"/>
+              <line x1="6"  y1="22" x2="14" y2="22" stroke="#21FFB5" stroke-width="2" stroke-linecap="round"/>
+              <line x1="30" y1="22" x2="38" y2="22" stroke="#21FFB5" stroke-width="2" stroke-linecap="round"/>
+            </g>
+            <circle cx="22" cy="22" r="6" fill="none" stroke="rgba(33,255,181,0.6)" stroke-width="1.5"/>
+            <circle cx="22" cy="22" r="2.5" fill="#21FFB5"/>
+          </svg>
+        </div>
+        <h3 class="proj-title">Solar PV + BESS Energy Efficiency</h3>
+        <p class="proj-desc">Conference paper presented at <strong>10th IEEC</strong> — innovative integration of PV and battery storage for residential and microgrid efficiency.</p>
+        <div class="proj-tags"><span class="tag-chip">Power systems</span><span class="tag-chip">Conference</span></div>
+        <span class="proj-arrow">↗</span>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============== SKILLS ============== -->
+<section id="skills">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Skills &amp; toolkit</span>
+      <h2 class="section-title">Tools I <em>actually</em> reach for.</h2>
+      <p class="section-sub">Not a buzzword cloud — these are the tools I've shipped real work with.</p>
+    </div>
+
+    <div class="skills-grid">
+      <div class="skill-card glass reveal">
+        <div class="sb-cat">01 / Industrial &amp; control</div>
+        <h3 class="sb-title">Power, drives, telemetry</h3>
+        <div class="skill-list"><span class="tag-chip">ETAP</span><span class="tag-chip">SCADA pipelines</span><span class="tag-chip">MQTT</span><span class="tag-chip">FastAPI</span><span class="tag-chip">Digital twins</span><span class="tag-chip">RUL modelling</span><span class="tag-chip">3-φ rectifiers</span><span class="tag-chip">Thyristor drives</span></div>
+      </div>
+      <div class="skill-card glass reveal delay-1">
+        <div class="sb-cat">02 / Embedded &amp; hardware</div>
+        <h3 class="sb-title">Schematic to silicon</h3>
+        <div class="skill-list"><span class="tag-chip">Embedded C</span><span class="tag-chip">ATmega328p</span><span class="tag-chip">ESP32</span><span class="tag-chip">ESP8266</span><span class="tag-chip">Arduino</span><span class="tag-chip">I²C</span><span class="tag-chip">UART</span><span class="tag-chip">SPI</span><span class="tag-chip">Encoders</span></div>
+      </div>
+      <div class="skill-card glass reveal delay-2">
+        <div class="sb-cat">03 / Machine learning &amp; data</div>
+        <h3 class="sb-title">From EDA to Bayesian</h3>
+        <div class="skill-list"><span class="tag-chip">Python</span><span class="tag-chip">PyTorch</span><span class="tag-chip">TensorFlow</span><span class="tag-chip">Scikit-learn</span><span class="tag-chip">XGBoost</span><span class="tag-chip">LSTM-AE</span><span class="tag-chip">CNN</span><span class="tag-chip">Bayesian NNs</span><span class="tag-chip">MC Dropout</span></div>
+      </div>
+      <div class="skill-card glass reveal">
+        <div class="sb-cat">04 / Robotics &amp; sensing</div>
+        <h3 class="sb-title">Perception &amp; navigation</h3>
+        <div class="skill-list"><span class="tag-chip">ROS 2</span><span class="tag-chip">Gazebo</span><span class="tag-chip">Nav2</span><span class="tag-chip">SLAM</span><span class="tag-chip">Hector SLAM</span><span class="tag-chip">RPLiDAR</span><span class="tag-chip">IMU</span><span class="tag-chip">Sensor fusion</span><span class="tag-chip">URDF</span></div>
+      </div>
+      <div class="skill-card glass reveal delay-1">
+        <div class="sb-cat">05 / Scientific computing</div>
+        <h3 class="sb-title">Physics-grade tools</h3>
+        <div class="skill-list"><span class="tag-chip">ROOT</span><span class="tag-chip">C/C++</span><span class="tag-chip">MATLAB</span><span class="tag-chip">R</span><span class="tag-chip">Monte Carlo</span><span class="tag-chip">Bootstrap</span></div>
+      </div>
+      <div class="skill-card glass reveal delay-2">
+        <div class="sb-cat">06 / Tooling &amp; ops</div>
+        <h3 class="sb-title">Daily workflow</h3>
+        <div class="skill-list"><span class="tag-chip">Git</span><span class="tag-chip">Docker</span><span class="tag-chip">Linux</span><span class="tag-chip">Jupyter</span><span class="tag-chip">Tailscale</span><span class="tag-chip">Raspberry Pi</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== HONORS ============== -->
+<section id="honors">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Honors &amp; appearances</span>
+      <h2 class="section-title">Recognition <em>&amp; talks</em>.</h2>
+    </div>
+
+    <div class="honors-grid">
+
+      <article class="honor honor-feature glass reveal">
+        <span class="honor-year"><span class="badge">★</span> 2026 · Featured</span>
+        <h4>MITACS Globalink Research Internship</h4>
+        <p>Competitively selected for Canada's flagship international research program — fully funded by the Government of Canada. Hosted at <strong>Saint Mary's University, Halifax</strong> for 12 weeks of multi-sensor fusion research applied to mobile-robot navigation and mapping. Selectees represent the top fraction of applicants from partner countries.</p>
+      </article>
+
+      <article class="honor glass reveal delay-1">
+        <span class="honor-year">Ongoing</span>
+        <h4>Lotte Scholarship</h4>
+        <p>Merit-based scholarship awarded for sustained academic performance at NED University of Engineering &amp; Technology.</p>
+      </article>
+
+      <article class="honor glass reveal delay-2">
+        <span class="honor-year">2024</span>
+        <h4>10th International Electrical Engineering Conference</h4>
+        <p>Presented paper: <strong>"Innovative Integration of Solar PV and Battery Storage Systems for Energy Efficiency."</strong></p>
+      </article>
+
+      <article class="honor glass reveal">
+        <span class="honor-year">2024</span>
+        <h4>8th Workshop on Tracking Detectors in HEP · NCP</h4>
+        <p>Participant in advanced workshop on particle-physics detector technologies — silicon tracking, alignment, and reconstruction.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============== CONTACT ============== -->
+<section id="contact">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="section-tag">Contact</span>
+    </div>
+
+    <div class="contact-grid">
+      <div>
+        <h2 class="contact-headline reveal">Let's <em>talk research,</em><br>or anything <em>useful</em>.</h2>
+        <p class="contact-blurb reveal delay-1">Open to graduate research positions, applied-ML collaborations, and industrial automation problems where physics, statistics, and embedded systems intersect. I read every email.</p>
+
+        <form class="contact-form reveal delay-2" id="contactForm" novalidate>
+          <div class="form-row">
+            <div class="field"><input type="text" id="name" name="name" placeholder="Your name" required autocomplete="name" /></div>
+            <div class="field"><input type="email" id="email" name="email" placeholder="Email address" required autocomplete="email" /></div>
+          </div>
+          <div class="field"><input type="text" id="subject" name="subject" placeholder="Subject (optional)" /></div>
+          <div class="field"><textarea id="message" name="message" placeholder="Your message" required></textarea></div>
+          <button class="btn btn-primary" type="submit">Send message <span class="arrow">→</span></button>
+          <div class="form-status" id="formStatus" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <aside class="contact-aside reveal delay-1">
+        <span class="label">Direct</span>
+        <a class="contact-email" href="mailto:ahmedbilalned@gmail.com">ahmedbilalned@gmail.com</a>
+        <div class="social-links">
+          <a class="social-link" href="https://github.com/ahmedbilal9" target="_blank" rel="noopener"><span>GitHub</span><span class="net">@ahmedbilal9</span></a>
+          <a class="social-link" href="https://linkedin.com/in/ahmedbilal9" target="_blank" rel="noopener"><span>LinkedIn</span><span class="net">in/ahmedbilal9</span></a>
+          <a class="social-link" href="https://medium.com/@ahmedbilal9" target="_blank" rel="noopener"><span>Medium</span><span class="net">@ahmedbilal9</span></a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <span>© <span id="year">2026</span> Ahmed Bilal · Built with care, deployed on GitHub Pages</span>
+    <span><a href="#top">Back to top ↑</a></span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+(() => {
+  'use strict';
+  const $  = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  $('#year').textContent = new Date().getFullYear();
+
+  const nav = $('#nav');
+  const onScroll = () => nav.classList.toggle('is-scrolled', window.scrollY > 12);
+  window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+  const menuBtn = $('#menuBtn'), navMobile = $('#navMobile');
+  if (menuBtn) {
+    menuBtn.addEventListener('click', () => {
+      const open = menuBtn.classList.toggle('is-open');
+      navMobile.classList.toggle('is-open', open);
+      menuBtn.setAttribute('aria-expanded', String(open));
+      navMobile.setAttribute('aria-hidden', String(!open));
+    });
+    $$('a', navMobile).forEach(a => a.addEventListener('click', () => {
+      menuBtn.classList.remove('is-open'); navMobile.classList.remove('is-open');
+      menuBtn.setAttribute('aria-expanded', 'false'); navMobile.setAttribute('aria-hidden', 'true');
+    }));
+  }
+
+  // Reveal on scroll
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+    $$('.reveal, .reveal-scale').forEach(el => io.observe(el));
+    const pf = $('#progressFill');
+    if (pf) {
+      const io2 = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { pf.classList.add('is-visible'); io2.unobserve(e.target); } });
+      }, { threshold: 0.4 });
+      io2.observe(pf);
+    }
+  } else {
+    $$('.reveal, .reveal-scale').forEach(el => el.classList.add('is-visible'));
+    const pf = $('#progressFill'); if (pf) pf.classList.add('is-visible');
+  }
+
+  // Magnetic button hover position (for the radial highlight)
+  $$('.btn').forEach(btn => {
+    btn.addEventListener('mousemove', (e) => {
+      const r = btn.getBoundingClientRect();
+      btn.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100) + '%');
+      btn.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
+    });
+  });
+
+  // ===================== HERO ABSTRACT GLOWING SPHERE =====================
+  function initHeroSphere() {
+    if (typeof THREE === 'undefined') return;
+    const stage = $('#hero-sphere-stage');
+    const canvas = $('#hero-sphere');
+    if (!stage || !canvas) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.set(0, 0, 5);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const sz = stage.getBoundingClientRect();
+    renderer.setSize(sz.width, sz.height, false);
+    renderer.setClearColor(0x000000, 0);
+
+    // ambient lighting + colored rims
+    scene.add(new THREE.AmbientLight(0x4a6a9a, 0.5));
+    const keyLight = new THREE.DirectionalLight(0xff6b6b, 1.4);
+    keyLight.position.set(2, 3, 4);
+    scene.add(keyLight);
+    const rimLight = new THREE.DirectionalLight(0x0055FF, 0.9);
+    rimLight.position.set(-3, -1, -2);
+    scene.add(rimLight);
+    const fillLight = new THREE.DirectionalLight(0x0055FF, 0.5);
+    fillLight.position.set(0, -3, 2);
+    scene.add(fillLight);
+
+    // === Core morphing sphere with animated displacement ===
+    const sphereGroup = new THREE.Group();
+    scene.add(sphereGroup);
+
+    const SPHERE_RADIUS = 1.4;
+    const sphereGeom = new THREE.IcosahedronGeometry(SPHERE_RADIUS, 5); // high poly for smooth morphing
+    const basePositions = new Float32Array(sphereGeom.attributes.position.array); // copy for reference
+    sphereGeom.userData.basePositions = basePositions;
+
+    // Custom-ish material: slightly transparent + emissive
+    const sphereMat = new THREE.MeshStandardMaterial({
+      color: 0x21FFB5,
+      emissive: 0xff3a40,
+      emissiveIntensity: 0.4,
+      roughness: 0.25,
+      metalness: 0.7,
+      flatShading: false,
+    });
+    const sphere = new THREE.Mesh(sphereGeom, sphereMat);
+    sphereGroup.add(sphere);
+
+    // Wireframe overlay
+    const wireGeom = new THREE.IcosahedronGeometry(SPHERE_RADIUS * 1.005, 3);
+    const wireMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18 });
+    const wire = new THREE.LineSegments(new THREE.WireframeGeometry(wireGeom), wireMat);
+    sphereGroup.add(wire);
+
+    // Halo glow (a simple billboarded gradient sprite)
+    const haloCanvas = document.createElement('canvas');
+    haloCanvas.width = 256; haloCanvas.height = 256;
+    const hctx = haloCanvas.getContext('2d');
+    const grd = hctx.createRadialGradient(128, 128, 30, 128, 128, 128);
+    grd.addColorStop(0, 'rgba(255, 90, 95, 0.5)');
+    grd.addColorStop(0.4, 'rgba(237, 28, 36, 0.20)');
+    grd.addColorStop(1, 'rgba(237, 28, 36, 0)');
+    hctx.fillStyle = grd;
+    hctx.fillRect(0, 0, 256, 256);
+    const haloTex = new THREE.CanvasTexture(haloCanvas);
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTex, transparent: true, depthWrite: false }));
+    halo.scale.set(5, 5, 1);
+    sphereGroup.add(halo);
+
+    // === Orbiting particles ===
+    const N_PARTICLES = 80;
+    const pGeom = new THREE.BufferGeometry();
+    const pPositions = new Float32Array(N_PARTICLES * 3);
+    const pData = []; // per-particle params
+    for (let i = 0; i < N_PARTICLES; i++) {
+      const r = SPHERE_RADIUS + 0.5 + Math.random() * 1.4;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      pData.push({ r, theta, phi, speed: 0.2 + Math.random() * 0.5, axis: Math.random() < 0.5 ? 'y' : 'x' });
+      pPositions[i*3+0] = r * Math.sin(phi) * Math.cos(theta);
+      pPositions[i*3+1] = r * Math.cos(phi);
+      pPositions[i*3+2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+    pGeom.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+
+    const particleSprite = (() => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 64;
+      const x = c.getContext('2d');
+      const g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.3, 'rgba(255,180,180,0.8)');
+      g.addColorStop(1, 'rgba(33,255,181,0)');
+      x.fillStyle = g;
+      x.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(c);
+    })();
+    const pMat = new THREE.PointsMaterial({
+      size: 0.08, map: particleSprite, transparent: true, depthWrite: false,
+      blending: THREE.AdditiveBlending, color: 0xffffff
+    });
+    const particles = new THREE.Points(pGeom, pMat);
+    scene.add(particles);
+
+    // === Mouse interaction ===
+    const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
+    stage.addEventListener('mousemove', (e) => {
+      const r = stage.getBoundingClientRect();
+      mouse.tx = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+      mouse.ty = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+    });
+    stage.addEventListener('mouseleave', () => { mouse.tx = 0; mouse.ty = 0; });
+
+    // Touch / drag
+    let isDragging = false, lastX = 0, lastY = 0;
+    let dragYaw = 0, dragPitch = 0;
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true; lastX = e.clientX; lastY = e.clientY;
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      dragYaw   += (e.clientX - lastX) * 0.005;
+      dragPitch += (e.clientY - lastY) * 0.003;
+      dragPitch = Math.max(-0.6, Math.min(0.6, dragPitch));
+      lastX = e.clientX; lastY = e.clientY;
+    });
+    canvas.addEventListener('touchstart', (e) => {
+      isDragging = true;
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    }, { passive: true });
+    window.addEventListener('touchend', () => { isDragging = false; });
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      dragYaw   += (e.touches[0].clientX - lastX) * 0.005;
+      dragPitch += (e.touches[0].clientY - lastY) * 0.003;
+      dragPitch = Math.max(-0.6, Math.min(0.6, dragPitch));
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    }, { passive: true });
+
+    const handleResize = () => {
+      const r = stage.getBoundingClientRect();
+      camera.aspect = r.width / r.height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(r.width, r.height, false);
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    // === Animate ===
+    let raf = 0, t0 = performance.now(), inView = true;
+    const posAttr = sphereGeom.attributes.position;
+
+    const tick = () => {
+      const now = performance.now();
+      const dt = Math.min(0.05, (now - t0) / 1000);
+      t0 = now;
+      const t = now * 0.001;
+
+      // Smooth mouse follow
+      mouse.x += (mouse.tx - mouse.x) * 0.05;
+      mouse.y += (mouse.ty - mouse.y) * 0.05;
+
+      // Sphere displacement (organic morph)
+      for (let i = 0; i < posAttr.count; i++) {
+        const ix = i * 3;
+        const bx = basePositions[ix], by = basePositions[ix+1], bz = basePositions[ix+2];
+        // simple noise approximation: sum of sines based on base position
+        const n = Math.sin(bx * 2.0 + t * 0.6) * 0.5
+                + Math.sin(by * 2.5 + t * 0.8) * 0.3
+                + Math.sin(bz * 3.0 + t * 0.4) * 0.2;
+        const k = 1 + n * 0.06; // ~6% displacement
+        posAttr.setXYZ(i, bx * k, by * k, bz * k);
+      }
+      posAttr.needsUpdate = true;
+      sphereGeom.computeVertexNormals();
+
+      // Sphere rotation: auto + drag + mouse parallax
+      sphereGroup.rotation.y += dt * 0.18 + dragYaw * 0.3;
+      sphereGroup.rotation.x = mouse.y * 0.3 + dragPitch + Math.sin(t * 0.4) * 0.05;
+      sphereGroup.rotation.z = Math.sin(t * 0.3) * 0.03;
+      dragYaw *= 0.92; // damp drag impulse
+      dragPitch *= 0.98;
+
+      // Pulse halo
+      const pulse = 1 + Math.sin(t * 1.6) * 0.08;
+      halo.scale.set(5 * pulse, 5 * pulse, 1);
+      halo.material.opacity = 0.7 + Math.sin(t * 1.6) * 0.15;
+
+      // Slow camera zoom breathing
+      camera.position.z = 5 + Math.sin(t * 0.3) * 0.15;
+
+      // Particles orbit
+      const pArr = pGeom.attributes.position.array;
+      for (let i = 0; i < N_PARTICLES; i++) {
+        const d = pData[i];
+        d.theta += dt * d.speed * 0.6;
+        const x = d.r * Math.sin(d.phi) * Math.cos(d.theta);
+        const y = d.r * Math.cos(d.phi);
+        const z = d.r * Math.sin(d.phi) * Math.sin(d.theta);
+        pArr[i*3+0] = x;
+        pArr[i*3+1] = y;
+        pArr[i*3+2] = z;
+      }
+      pGeom.attributes.position.needsUpdate = true;
+      particles.rotation.y = mouse.x * 0.4;
+      particles.rotation.x = mouse.y * 0.3;
+
+      renderer.render(scene, camera);
+      if (inView) raf = requestAnimationFrame(tick);
+    };
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          inView = e.isIntersecting;
+          if (inView && !raf) { t0 = performance.now(); raf = requestAnimationFrame(tick); }
+          if (!inView && raf) { cancelAnimationFrame(raf); raf = 0; }
+        });
+      }, { threshold: 0.05 }).observe(stage);
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+  // ===================== TURBOFAN (now in FYP card) =====================
+  function initTurbofan() {
+    if (typeof THREE === 'undefined') return;
+    const stage = $('#turbofan-stage');
+    const canvas = $('#turbofan-canvas');
+    if (!stage || !canvas) return;
+
+    const scene = new THREE.Scene();
+    const RED = new THREE.Color('#21FFB5');
+    const TEAL = new THREE.Color('#0055FF');
+
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+    camera.position.set(0, 0.6, 6.6);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const sz = stage.getBoundingClientRect();
+    renderer.setSize(sz.width, sz.height, false);
+    renderer.setClearColor(0x000000, 0);
+
+    scene.add(new THREE.AmbientLight(0x6080a0, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 0.7);
+    key.position.set(4, 5, 6);
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0x21FFB5, 0.5);
+    rim.position.set(-4, 1, -3);
+    scene.add(rim);
+
+    const engine = new THREE.Group();
+    scene.add(engine);
+    engine.rotation.y = 0.55;
+    engine.rotation.x = -0.15;
+
+    // Nacelle
+    const nacelle = new THREE.Mesh(
+      new THREE.TorusGeometry(1.6, 0.18, 24, 64),
+      new THREE.MeshStandardMaterial({ color: 0x2a3550, roughness: 0.45, metalness: 0.7 })
+    );
+    nacelle.rotation.y = Math.PI / 2;
+    engine.add(nacelle);
+
+    const innerRing = new THREE.Mesh(
+      new THREE.TorusGeometry(1.4, 0.04, 12, 64),
+      new THREE.MeshStandardMaterial({ color: RED, emissive: 0x21FFB5, emissiveIntensity: 0.4, roughness: 0.4, metalness: 0.6 })
+    );
+    innerRing.rotation.y = Math.PI / 2;
+    engine.add(innerRing);
+
+    const hubMat = new THREE.MeshStandardMaterial({ color: 0x1a2238, roughness: 0.4, metalness: 0.8 });
+    const hub = new THREE.Mesh(new THREE.SphereGeometry(0.32, 24, 18), hubMat);
+    engine.add(hub);
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.55, 20, 1, false), hubMat);
+    cone.rotation.z = -Math.PI / 2;
+    cone.position.x = 0.42;
+    engine.add(cone);
+
+    const fan = new THREE.Group();
+    engine.add(fan);
+    const bladeMat = new THREE.MeshStandardMaterial({ color: 0xc8d0e0, roughness: 0.4, metalness: 0.7, side: THREE.DoubleSide });
+    const N_BLADES = 14;
+    const BL = 1.18, BT = 0.04, BHi = 0.10, BHo = 0.32;
+    for (let i = 0; i < N_BLADES; i++) {
+      const outline = new THREE.Shape();
+      outline.moveTo(0, -BHi/2);
+      outline.lineTo(BL*0.55, -BHo/2 - 0.02);
+      outline.lineTo(BL,      -BHo/2 + 0.04);
+      outline.lineTo(BL,       BHo/2 - 0.04);
+      outline.lineTo(BL*0.55,  BHo/2 + 0.02);
+      outline.lineTo(0,        BHi/2);
+      outline.lineTo(0,       -BHi/2);
+      const bg = new THREE.ExtrudeGeometry(outline, { depth: BT, bevelEnabled: false });
+      const pos = bg.attributes.position;
+      for (let v = 0; v < pos.count; v++) {
+        const x = pos.getX(v), y = pos.getY(v), z = pos.getZ(v);
+        const t = x / BL;
+        const tw = -0.6 * (1 - t);
+        const cy = Math.cos(tw), sy = Math.sin(tw);
+        pos.setY(v, y * cy - z * sy);
+        pos.setZ(v, y * sy + z * cy);
+      }
+      pos.needsUpdate = true; bg.computeVertexNormals();
+      const blade = new THREE.Mesh(bg, bladeMat);
+      blade.position.z = -BT/2;
+      blade.rotation.z = Math.PI / 2;
+      blade.rotation.y = Math.PI * 0.16;
+      const anchor = new THREE.Group();
+      anchor.rotation.x = (i / N_BLADES) * Math.PI * 2;
+      anchor.add(blade);
+      fan.add(anchor);
+    }
+
+    const stator = new THREE.Group();
+    engine.add(stator);
+    stator.position.x = -0.55;
+    const vaneMat = new THREE.MeshStandardMaterial({ color: 0x141d33, roughness: 0.55, metalness: 0.4 });
+    for (let i = 0; i < 18; i++) {
+      const vane = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.025, 0.22), vaneMat);
+      const a = (i / 18) * Math.PI * 2;
+      vane.position.set(0, Math.cos(a) * 1.0, Math.sin(a) * 1.0);
+      vane.rotation.x = a;
+      stator.add(vane);
+    }
+
+    const sensors = [];
+    const sensorMat = new THREE.MeshBasicMaterial({ color: TEAL });
+    const N_S = 14;
+    for (let i = 0; i < N_S; i++) {
+      const t = i / N_S;
+      const a = t * Math.PI * 2;
+      const r = 2.6 + (Math.random()-0.5)*0.4;
+      const yJ = (Math.random()-0.5)*1.4;
+      const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), sensorMat);
+      sphere.position.set(Math.cos(a)*r*0.9, yJ, Math.sin(a)*r*0.6);
+      sphere.userData = { baseY: yJ, phase: Math.random()*Math.PI*2 };
+      scene.add(sphere); sensors.push(sphere);
+    }
+    const lineGeom = new THREE.BufferGeometry();
+    const linePositions = new Float32Array(N_S * 6);
+    lineGeom.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+    scene.add(new THREE.LineSegments(lineGeom, new THREE.LineBasicMaterial({ color: RED, transparent: true, opacity: 0.35 })));
+
+    let isDragging = false, lastX = 0, lastY = 0;
+    let yawT = engine.rotation.y, pitchT = engine.rotation.x;
+    const onDown = (e) => { isDragging = true;
+      lastX = (e.clientX ?? (e.touches && e.touches[0].clientX)) || 0;
+      lastY = (e.clientY ?? (e.touches && e.touches[0].clientY)) || 0; };
+    const onUp = () => { isDragging = false; };
+    const onMove = (e) => {
+      if (!isDragging) return;
+      const x = (e.clientX ?? (e.touches && e.touches[0].clientX)) || 0;
+      const y = (e.clientY ?? (e.touches && e.touches[0].clientY)) || 0;
+      yawT += (x - lastX) * 0.008;
+      pitchT += (y - lastY) * 0.005;
+      pitchT = Math.max(-0.7, Math.min(0.7, pitchT));
+      lastX = x; lastY = y; e.preventDefault();
+    };
+    canvas.addEventListener('mousedown', onDown);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('mousemove', onMove);
+    canvas.addEventListener('touchstart', onDown, { passive: false });
+    window.addEventListener('touchend', onUp);
+    window.addEventListener('touchmove', onMove, { passive: false });
+
+    const handleResize = () => {
+      const r = stage.getBoundingClientRect();
+      camera.aspect = r.width / r.height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(r.width, r.height, false);
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    let t0 = performance.now(), raf = 0, inView = true;
+    const tick = () => {
+      const now = performance.now();
+      const dt = Math.min(0.05, (now - t0) / 1000);
+      t0 = now;
+      if (!isDragging) yawT += dt * 0.15;
+      engine.rotation.y += (yawT - engine.rotation.y) * 0.08;
+      engine.rotation.x += (pitchT - engine.rotation.x) * 0.08;
+      fan.rotation.x += dt * 4.2;
+      const tn = now * 0.001;
+      const arr = lineGeom.attributes.position.array;
+      for (let i = 0; i < sensors.length; i++) {
+        const s = sensors[i];
+        s.position.y = s.userData.baseY + Math.sin(tn*1.4 + s.userData.phase) * 0.10;
+        s.scale.setScalar(1 + Math.sin(tn*2 + s.userData.phase) * 0.15);
+        arr[i*6+0] = s.position.x; arr[i*6+1] = s.position.y; arr[i*6+2] = s.position.z;
+        arr[i*6+3] = 0; arr[i*6+4] = 0; arr[i*6+5] = 0;
+      }
+      lineGeom.attributes.position.needsUpdate = true;
+      renderer.render(scene, camera);
+      if (inView) raf = requestAnimationFrame(tick);
+    };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          inView = e.isIntersecting;
+          if (inView && !raf) { t0 = performance.now(); raf = requestAnimationFrame(tick); }
+          if (!inView && raf) { cancelAnimationFrame(raf); raf = 0; }
+        });
+      }, { threshold: 0.05 }).observe(stage);
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+
+
+  // ===================== FULL 3D ENGINE SHOWCASE =====================
+  function initEngine3D() {
+    if (typeof THREE === 'undefined') return;
+    const stage = document.getElementById('engine3d-stage');
+    const canvas = document.getElementById('engine3d-canvas');
+    if (!stage || !canvas) return;
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x000d1f, 0.035);
+
+    const sz = stage.getBoundingClientRect();
+    const W = sz.width || 600, H = sz.height || 600;
+
+    const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 200);
+    camera.position.set(0, 1.2, 9);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(W, H, false);
+    renderer.setClearColor(0x000d1f, 1);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+
+    // === LIGHTING ===
+    scene.add(new THREE.AmbientLight(0x102040, 0.8));
+
+    const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+    sunLight.position.set(6, 8, 6);
+    sunLight.castShadow = true;
+    sunLight.shadow.mapSize.set(1024, 1024);
+    scene.add(sunLight);
+
+    const greenRim = new THREE.PointLight(0x21FFB5, 3, 20);
+    greenRim.position.set(-5, 2, -4);
+    scene.add(greenRim);
+
+    const blueFill = new THREE.PointLight(0x0055FF, 2, 18);
+    blueFill.position.set(5, -2, 3);
+    scene.add(blueFill);
+
+    const yellowSpot = new THREE.PointLight(0xE5F95B, 1.5, 14);
+    yellowSpot.position.set(0, 6, 2);
+    scene.add(yellowSpot);
+
+    // === MATERIALS ===
+    const metalDark = new THREE.MeshStandardMaterial({ color: 0x1a2540, roughness: 0.3, metalness: 0.9 });
+    const metalMid = new THREE.MeshStandardMaterial({ color: 0x2e3f60, roughness: 0.35, metalness: 0.85 });
+    const metalLight = new THREE.MeshStandardMaterial({ color: 0xb0c4de, roughness: 0.25, metalness: 0.9 });
+    const greenEmit = new THREE.MeshStandardMaterial({ color: 0x21FFB5, emissive: 0x21FFB5, emissiveIntensity: 0.8, roughness: 0.2, metalness: 0.3 });
+    const blueEmit = new THREE.MeshStandardMaterial({ color: 0x0055FF, emissive: 0x0055FF, emissiveIntensity: 0.6, roughness: 0.3, metalness: 0.4 });
+    const yellowEmit = new THREE.MeshStandardMaterial({ color: 0xE5F95B, emissive: 0xE5F95B, emissiveIntensity: 0.5, roughness: 0.3, metalness: 0.2 });
+
+    // === ENGINE GROUP ===
+    const engine = new THREE.Group();
+    scene.add(engine);
+
+    // --- Nacelle outer ring ---
+    const nacelleGeo = new THREE.TorusGeometry(2.2, 0.22, 32, 80);
+    const nacelle = new THREE.Mesh(nacelleGeo, metalDark);
+    nacelle.rotation.y = Math.PI / 2;
+    nacelle.castShadow = true;
+    engine.add(nacelle);
+
+    // Nacelle glow ring (green)
+    const glowRing1 = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.04, 16, 80), greenEmit);
+    glowRing1.rotation.y = Math.PI / 2;
+    engine.add(glowRing1);
+
+    // Inner structural ring
+    const innerNacelle = new THREE.Mesh(new THREE.TorusGeometry(1.9, 0.10, 24, 64), metalMid);
+    innerNacelle.rotation.y = Math.PI / 2;
+    engine.add(innerNacelle);
+
+    // Blue accent ring
+    const blueRing = new THREE.Mesh(new THREE.TorusGeometry(2.05, 0.03, 12, 64), blueEmit);
+    blueRing.rotation.y = Math.PI / 2;
+    engine.add(blueRing);
+
+    // --- Intake cowl cylinder ---
+    const cowlGeo = new THREE.CylinderGeometry(2.2, 2.38, 0.5, 48, 1, true);
+    const cowl = new THREE.Mesh(cowlGeo, metalDark);
+    cowl.rotation.z = Math.PI / 2;
+    cowl.position.x = 0.5;
+    engine.add(cowl);
+
+    // Exhaust cone cylinder (back)
+    const exhaustGeo = new THREE.CylinderGeometry(1.6, 1.9, 0.8, 48, 1, true);
+    const exhaust = new THREE.Mesh(exhaustGeo, metalDark);
+    exhaust.rotation.z = Math.PI / 2;
+    exhaust.position.x = -0.8;
+    engine.add(exhaust);
+
+    // Exhaust glow
+    const exhaustGlowGeo = new THREE.CylinderGeometry(1.55, 1.55, 0.1, 32);
+    const exhaustGlow = new THREE.Mesh(exhaustGlowGeo, new THREE.MeshStandardMaterial({ color: 0xFF6B00, emissive: 0xFF4400, emissiveIntensity: 1.5, roughness: 0.5 }));
+    exhaustGlow.rotation.z = Math.PI / 2;
+    exhaustGlow.position.x = -1.15;
+    engine.add(exhaustGlow);
+
+    // Exhaust point light
+    const exhaustLight = new THREE.PointLight(0xFF4400, 4, 8);
+    exhaustLight.position.set(-2, 0, 0);
+    engine.add(exhaustLight);
+
+    // --- Hub & nose cone ---
+    const hub = new THREE.Mesh(new THREE.SphereGeometry(0.42, 32, 24), metalLight);
+    engine.add(hub);
+    const noseCone = new THREE.Mesh(new THREE.ConeGeometry(0.38, 0.8, 24), metalMid);
+    noseCone.rotation.z = -Math.PI / 2;
+    noseCone.position.x = 0.7;
+    engine.add(noseCone);
+
+    // --- Fan blades (15 blades, high detail) ---
+    const fanGroup = new THREE.Group();
+    engine.add(fanGroup);
+    const N_BLADES = 15;
+    const BL = 1.62, BT = 0.045, BHi = 0.12, BHo = 0.42;
+
+    for (let i = 0; i < N_BLADES; i++) {
+      const shape = new THREE.Shape();
+      shape.moveTo(0, -BHi / 2);
+      shape.quadraticCurveTo(BL * 0.3, -BHo * 0.6, BL * 0.6, -BHo / 2);
+      shape.quadraticCurveTo(BL * 0.85, -BHo * 0.3, BL, -BHo / 4);
+      shape.lineTo(BL, BHo / 4);
+      shape.quadraticCurveTo(BL * 0.85, BHo * 0.3, BL * 0.6, BHo / 2);
+      shape.quadraticCurveTo(BL * 0.3, BHo * 0.6, 0, BHi / 2);
+      shape.lineTo(0, -BHi / 2);
+
+      const extGeo = new THREE.ExtrudeGeometry(shape, { depth: BT, bevelEnabled: true, bevelSize: 0.005, bevelThickness: 0.005, bevelSegments: 2 });
+      const bPos = extGeo.attributes.position;
+      for (let v = 0; v < bPos.count; v++) {
+        const x = bPos.getX(v), y = bPos.getY(v), z = bPos.getZ(v);
+        const t = x / BL;
+        const tw = -0.72 * (1 - t * t);
+        const sweep = 0.3 * t;
+        const cy = Math.cos(tw), sy = Math.sin(tw);
+        bPos.setY(v, y * cy - z * sy + sweep * y * 0.1);
+        bPos.setZ(v, y * sy + z * cy);
+      }
+      bPos.needsUpdate = true;
+      extGeo.computeVertexNormals();
+
+      const bladeMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(0.58 + i * 0.004, 0.3, 0.65),
+        roughness: 0.28, metalness: 0.88, side: THREE.DoubleSide
+      });
+      const blade = new THREE.Mesh(extGeo, bladeMat);
+      blade.position.z = -BT / 2;
+      blade.rotation.z = Math.PI / 2;
+      blade.rotation.y = Math.PI * 0.12;
+      blade.castShadow = true;
+
+      const anchor = new THREE.Group();
+      anchor.rotation.x = (i / N_BLADES) * Math.PI * 2;
+      anchor.add(blade);
+      fanGroup.add(anchor);
+    }
+
+    // --- Stator vanes (outer ring) ---
+    const statorGroup = new THREE.Group();
+    engine.add(statorGroup);
+    statorGroup.position.x = -0.7;
+    for (let i = 0; i < 22; i++) {
+      const vaneGeo = new THREE.BoxGeometry(0.22, 0.03, 0.28);
+      const vane = new THREE.Mesh(vaneGeo, metalMid);
+      const a = (i / 22) * Math.PI * 2;
+      vane.position.set(0, Math.cos(a) * 1.5, Math.sin(a) * 1.5);
+      vane.rotation.x = a;
+      statorGroup.add(vane);
+    }
+
+    // --- Structural struts ---
+    for (let i = 0; i < 6; i++) {
+      const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.7, 8), metalMid);
+      const a = (i / 6) * Math.PI * 2;
+      strut.position.set(-0.4, Math.cos(a) * 1.1, Math.sin(a) * 1.1);
+      strut.rotation.z = Math.PI / 2;
+      strut.rotation.x = a;
+      engine.add(strut);
+    }
+
+    // --- Sensor dots orbiting the engine ---
+    const sensors = [];
+    const N_S = 18;
+    for (let i = 0; i < N_S; i++) {
+      const t = i / N_S;
+      const a = t * Math.PI * 2;
+      const r = 3.2 + (Math.random() - 0.5) * 0.5;
+      const yJ = (Math.random() - 0.5) * 1.8;
+      const matChoice = i % 3;
+      const mat = matChoice === 0 ? greenEmit.clone() : (matChoice === 1 ? blueEmit.clone() : yellowEmit.clone());
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 10), mat);
+      dot.position.set(Math.cos(a) * r * 0.85, yJ, Math.sin(a) * r * 0.65);
+      dot.userData = { baseY: yJ, phase: Math.random() * Math.PI * 2, r: r, a: a };
+      scene.add(dot);
+      sensors.push(dot);
+    }
+
+    // --- Connection lines ---
+    const lineGeom = new THREE.BufferGeometry();
+    const lp = new Float32Array(N_S * 6);
+    lineGeom.setAttribute('position', new THREE.BufferAttribute(lp, 3));
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x21FFB5, transparent: true, opacity: 0.25 });
+    scene.add(new THREE.LineSegments(lineGeom, lineMat));
+
+    // --- Particle field (floating particles in background) ---
+    const particleCount = 200;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      pPos[i * 3] = (Math.random() - 0.5) * 30;
+      pPos[i * 3 + 1] = (Math.random() - 0.5) * 20;
+      pPos[i * 3 + 2] = (Math.random() - 0.5) * 20;
+    }
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    scene.add(new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0x21FFB5, size: 0.04, transparent: true, opacity: 0.4 })));
+
+    // --- Orbital ring decorations ---
+    for (let r = 0; r < 3; r++) {
+      const radius = 3.0 + r * 0.6;
+      const ringGeo = new THREE.TorusGeometry(radius, 0.008, 6, 100);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: r === 0 ? 0x21FFB5 : (r === 1 ? 0x0055FF : 0xE5F95B),
+        transparent: true, opacity: 0.15 + r * 0.05
+      });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = Math.PI / 2 + r * 0.3;
+      ring.rotation.z = r * 0.5;
+      scene.add(ring);
+    }
+
+    // === INTERACTION ===
+    let isDragging = false, lastX = 0, lastY = 0;
+    let yawT = 0.4, pitchT = -0.1;
+    let zoom = 9, zoomT = 9;
+
+    const getXY = (e) => ({
+      x: (e.clientX ?? (e.touches && e.touches[0].clientX)) || 0,
+      y: (e.clientY ?? (e.touches && e.touches[0].clientY)) || 0
+    });
+
+    canvas.addEventListener('mousedown', (e) => { isDragging = true; const p = getXY(e); lastX = p.x; lastY = p.y; });
+    window.addEventListener('mouseup', () => { isDragging = false; });
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const p = getXY(e);
+      yawT += (p.x - lastX) * 0.007;
+      pitchT += (p.y - lastY) * 0.004;
+      pitchT = Math.max(-0.7, Math.min(0.7, pitchT));
+      lastX = p.x; lastY = p.y;
+      e.preventDefault();
+    });
+    canvas.addEventListener('touchstart', (e) => { isDragging = true; const p = getXY(e); lastX = p.x; lastY = p.y; }, { passive: false });
+    window.addEventListener('touchend', () => { isDragging = false; });
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const p = getXY(e);
+      yawT += (p.x - lastX) * 0.007;
+      pitchT += (p.y - lastY) * 0.004;
+      pitchT = Math.max(-0.7, Math.min(0.7, pitchT));
+      lastX = p.x; lastY = p.y;
+      e.preventDefault();
+    }, { passive: false });
+    canvas.addEventListener('wheel', (e) => {
+      zoomT = Math.max(5, Math.min(14, zoomT + e.deltaY * 0.01));
+      e.preventDefault();
+    }, { passive: false });
+
+    window.addEventListener('resize', () => {
+      const r = stage.getBoundingClientRect();
+      if (!r.width) return;
+      camera.aspect = r.width / r.height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(r.width, r.height, false);
+    }, { passive: true });
+
+    // HUD update
+    const hudRpm = document.getElementById('hud-rpm');
+    const hudTemp = document.getElementById('hud-temp');
+    const hudVib = document.getElementById('hud-vib');
+    let hudT = 0;
+
+    let t0 = performance.now(), rafId = 0, inView = true;
+    const tick = () => {
+      const now = performance.now();
+      const dt = Math.min(0.05, (now - t0) / 1000);
+      t0 = now;
+      const tn = now * 0.001;
+
+      // Auto-rotate + smooth drag
+      if (!isDragging) yawT += dt * 0.18;
+      engine.rotation.y += (yawT - engine.rotation.y) * 0.06;
+      engine.rotation.x += (pitchT - engine.rotation.x) * 0.06;
+
+      // Fan spin (fast!)
+      fanGroup.rotation.x += dt * 5.8;
+
+      // Zoom
+      zoom += (zoomT - zoom) * 0.07;
+      camera.position.z = zoom;
+
+      // Pulsing lights
+      greenRim.intensity = 2.5 + Math.sin(tn * 1.8) * 0.8;
+      blueFill.intensity = 1.8 + Math.sin(tn * 2.3 + 1) * 0.6;
+      exhaustLight.intensity = 3 + Math.sin(tn * 4) * 1.5;
+
+      // Sensor orbiting + lines
+      const arr = lineGeom.attributes.position.array;
+      for (let i = 0; i < sensors.length; i++) {
+        const s = sensors[i];
+        s.userData.a += dt * 0.12;
+        s.position.x = Math.sin(tn * 0.3 + s.userData.phase) * 0.4;
+        s.position.y = s.userData.baseY + Math.sin(tn * 1.2 + s.userData.phase) * 0.15;
+        s.position.z = Math.cos(tn * 0.3 + s.userData.phase) * 0.15 + Math.sin(s.userData.a) * s.userData.r * 0.65;
+        const sc = 0.9 + Math.sin(tn * 3 + s.userData.phase) * 0.2;
+        s.scale.setScalar(sc);
+        arr[i * 6] = s.position.x; arr[i * 6 + 1] = s.position.y; arr[i * 6 + 2] = s.position.z;
+        arr[i * 6 + 3] = 0; arr[i * 6 + 4] = 0; arr[i * 6 + 5] = 0;
+      }
+      lineGeom.attributes.position.needsUpdate = true;
+
+      // Particle drift
+      const pp = pGeo.attributes.position.array;
+      for (let i = 0; i < particleCount; i++) {
+        pp[i * 3 + 1] += dt * 0.04;
+        if (pp[i * 3 + 1] > 10) pp[i * 3 + 1] = -10;
+      }
+      pGeo.attributes.position.needsUpdate = true;
+
+      // HUD flicker
+      hudT += dt;
+      if (hudT > 0.8 + Math.random() * 0.4) {
+        hudT = 0;
+        if (hudRpm) hudRpm.textContent = (12000 + Math.floor(Math.random() * 800)).toLocaleString();
+        if (hudTemp) hudTemp.textContent = (830 + Math.floor(Math.random() * 40)).toString();
+        if (hudVib) hudVib.textContent = (0.38 + Math.random() * 0.12).toFixed(2) + ' mm/s';
+      }
+
+      renderer.render(scene, camera);
+      if (inView) rafId = requestAnimationFrame(tick);
+    };
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          inView = e.isIntersecting;
+          if (inView && !rafId) { t0 = performance.now(); rafId = requestAnimationFrame(tick); }
+          if (!inView && rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+        });
+      }, { threshold: 0.05 }).observe(stage);
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  // ===================== HERO TURBOFAN ENGINE =====================
+  function initHeroTurbofan() {
+    if (typeof THREE === 'undefined') return;
+    const stage = $('#hero-turbofan-stage');
+    const canvas = $('#hero-turbofan-canvas');
+    if (!stage || !canvas) return;
+
+    const scene = new THREE.Scene();
+    const GREEN = new THREE.Color('#21FFB5');
+    const BLUE = new THREE.Color('#0055FF');
+
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+    camera.position.set(0, 0.6, 6.6);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const sz = stage.getBoundingClientRect();
+    renderer.setSize(sz.width || 400, sz.height || 400, false);
+    renderer.setClearColor(0x000000, 0);
+
+    scene.add(new THREE.AmbientLight(0x4466aa, 0.6));
+    const key = new THREE.DirectionalLight(0xffffff, 0.8);
+    key.position.set(4, 5, 6);
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0x21FFB5, 0.5);
+    rim.position.set(-4, 1, -3);
+    scene.add(rim);
+    const fill = new THREE.DirectionalLight(0x0055FF, 0.4);
+    fill.position.set(2, -2, 4);
+    scene.add(fill);
+
+    const engine = new THREE.Group();
+    scene.add(engine);
+    engine.rotation.y = 0.55;
+    engine.rotation.x = -0.15;
+
+    const nacelle = new THREE.Mesh(
+      new THREE.TorusGeometry(1.6, 0.18, 24, 64),
+      new THREE.MeshStandardMaterial({ color: 0x1a2e50, roughness: 0.4, metalness: 0.75 })
+    );
+    nacelle.rotation.y = Math.PI / 2;
+    engine.add(nacelle);
+
+    const innerRing = new THREE.Mesh(
+      new THREE.TorusGeometry(1.4, 0.04, 12, 64),
+      new THREE.MeshStandardMaterial({ color: GREEN, emissive: 0x21FFB5, emissiveIntensity: 0.4, roughness: 0.3, metalness: 0.6 })
+    );
+    innerRing.rotation.y = Math.PI / 2;
+    engine.add(innerRing);
+
+    const hubMat = new THREE.MeshStandardMaterial({ color: 0x1a2238, roughness: 0.4, metalness: 0.8 });
+    const hub = new THREE.Mesh(new THREE.SphereGeometry(0.32, 24, 18), hubMat);
+    engine.add(hub);
+    const cone = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.55, 20, 1, false), hubMat);
+    cone.rotation.z = -Math.PI / 2;
+    cone.position.x = 0.42;
+    engine.add(cone);
+
+    const fan = new THREE.Group();
+    engine.add(fan);
+    const bladeMat = new THREE.MeshStandardMaterial({ color: 0xc8d4e8, roughness: 0.35, metalness: 0.75, side: THREE.DoubleSide });
+    const N_BLADES = 14;
+    const BL = 1.18, BT = 0.04, BHi = 0.10, BHo = 0.32;
+    for (let i = 0; i < N_BLADES; i++) {
+      const outline = new THREE.Shape();
+      outline.moveTo(0, -BHi/2);
+      outline.lineTo(BL*0.55, -BHo/2 - 0.02);
+      outline.lineTo(BL,      -BHo/2 + 0.04);
+      outline.lineTo(BL,       BHo/2 - 0.04);
+      outline.lineTo(BL*0.55,  BHo/2 + 0.02);
+      outline.lineTo(0,        BHi/2);
+      outline.lineTo(0,       -BHi/2);
+      const bg = new THREE.ExtrudeGeometry(outline, { depth: BT, bevelEnabled: false });
+      const pos = bg.attributes.position;
+      for (let v = 0; v < pos.count; v++) {
+        const x = pos.getX(v), y = pos.getY(v), z = pos.getZ(v);
+        const t = x / BL;
+        const tw = -0.6 * (1 - t);
+        const cy = Math.cos(tw), sy = Math.sin(tw);
+        pos.setY(v, y * cy - z * sy);
+        pos.setZ(v, y * sy + z * cy);
+      }
+      pos.needsUpdate = true; bg.computeVertexNormals();
+      const blade = new THREE.Mesh(bg, bladeMat);
+      blade.position.z = -BT/2;
+      blade.rotation.z = Math.PI / 2;
+      blade.rotation.y = Math.PI * 0.16;
+      const anchor = new THREE.Group();
+      anchor.rotation.x = (i / N_BLADES) * Math.PI * 2;
+      anchor.add(blade);
+      fan.add(anchor);
+    }
+
+    const stator = new THREE.Group();
+    engine.add(stator);
+    stator.position.x = -0.55;
+    const vaneMat = new THREE.MeshStandardMaterial({ color: 0x141d33, roughness: 0.55, metalness: 0.4 });
+    for (let i = 0; i < 18; i++) {
+      const vane = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.025, 0.22), vaneMat);
+      const a = (i / 18) * Math.PI * 2;
+      vane.position.set(0, Math.cos(a) * 1.0, Math.sin(a) * 1.0);
+      vane.rotation.x = a;
+      stator.add(vane);
+    }
+
+    const sensors = [];
+    const sensorMat = new THREE.MeshBasicMaterial({ color: GREEN });
+    const N_S = 14;
+    for (let i = 0; i < N_S; i++) {
+      const t = i / N_S;
+      const a = t * Math.PI * 2;
+      const r = 2.6 + (Math.random()-0.5)*0.4;
+      const yJ = (Math.random()-0.5)*1.4;
+      const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), sensorMat);
+      sphere.position.set(Math.cos(a)*r*0.9, yJ, Math.sin(a)*r*0.6);
+      sphere.userData = { baseY: yJ, phase: Math.random()*Math.PI*2 };
+      scene.add(sphere); sensors.push(sphere);
+    }
+    const lineGeom = new THREE.BufferGeometry();
+    const linePositions = new Float32Array(N_S * 6);
+    lineGeom.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
+    scene.add(new THREE.LineSegments(lineGeom, new THREE.LineBasicMaterial({ color: BLUE, transparent: true, opacity: 0.3 })));
+
+    let isDragging = false, lastX = 0, lastY = 0;
+    let yawT = engine.rotation.y, pitchT = engine.rotation.x;
+    const onDown = (e) => { isDragging = true;
+      lastX = (e.clientX ?? (e.touches && e.touches[0].clientX)) || 0;
+      lastY = (e.clientY ?? (e.touches && e.touches[0].clientY)) || 0; };
+    const onUp = () => { isDragging = false; };
+    const onMove = (e) => {
+      if (!isDragging) return;
+      const x = (e.clientX ?? (e.touches && e.touches[0].clientX)) || 0;
+      const y = (e.clientY ?? (e.touches && e.touches[0].clientY)) || 0;
+      yawT += (x - lastX) * 0.008;
+      pitchT += (y - lastY) * 0.005;
+      pitchT = Math.max(-0.7, Math.min(0.7, pitchT));
+      lastX = x; lastY = y; e.preventDefault();
+    };
+    canvas.addEventListener('mousedown', onDown);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('mousemove', onMove);
+    canvas.addEventListener('touchstart', onDown, { passive: false });
+    window.addEventListener('touchend', onUp);
+    window.addEventListener('touchmove', onMove, { passive: false });
+
+    const handleResize = () => {
+      const r = stage.getBoundingClientRect();
+      if (!r.width) return;
+      camera.aspect = r.width / r.height;
+      camera.updateProjectionMatrix();
+      renderer.setSize(r.width, r.height, false);
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+
+    let t0 = performance.now(), raf = 0, inView = true;
+    const tick = () => {
+      const now = performance.now();
+      const dt = Math.min(0.05, (now - t0) / 1000);
+      t0 = now;
+      if (!isDragging) yawT += dt * 0.15;
+      engine.rotation.y += (yawT - engine.rotation.y) * 0.08;
+      engine.rotation.x += (pitchT - engine.rotation.x) * 0.08;
+      fan.rotation.x += dt * 4.2;
+      const tn = now * 0.001;
+      const arr = lineGeom.attributes.position.array;
+      for (let i = 0; i < sensors.length; i++) {
+        const s = sensors[i];
+        s.position.y = s.userData.baseY + Math.sin(tn*1.4 + s.userData.phase) * 0.10;
+        s.scale.setScalar(1 + Math.sin(tn*2 + s.userData.phase) * 0.15);
+        arr[i*6+0] = s.position.x; arr[i*6+1] = s.position.y; arr[i*6+2] = s.position.z;
+        arr[i*6+3] = 0; arr[i*6+4] = 0; arr[i*6+5] = 0;
+      }
+      lineGeom.attributes.position.needsUpdate = true;
+      renderer.render(scene, camera);
+      if (inView) raf = requestAnimationFrame(tick);
+    };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          inView = e.isIntersecting;
+          if (inView && !raf) { t0 = performance.now(); raf = requestAnimationFrame(tick); }
+          if (!inView && raf) { cancelAnimationFrame(raf); raf = 0; }
+        });
+      }, { threshold: 0.05 }).observe(stage);
+    }
+    raf = requestAnimationFrame(tick);
+  }
+
+  if (!reduceMotion) {
+    const startThree = () => {
+      if (typeof THREE !== 'undefined') {
+        initHeroSphere();
+        initEngine3D();
+        initHeroTurbofan();
+        initTurbofan();
+      }
+    };
+    if (typeof THREE !== 'undefined') startThree();
+    else window.addEventListener('load', startThree);
+  }
+
+  // ===================== Contact form =====================
+  const FORMSPREE_ENDPOINT = ''; // paste your Formspree URL here
+  const form = $('#contactForm'), status = $('#formStatus');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.classList.remove('is-error');
+      const fd = new FormData(form);
+      const name = (fd.get('name') || '').toString().trim();
+      const email = (fd.get('email') || '').toString().trim();
+      const subject = (fd.get('subject') || '').toString().trim() || 'Portfolio enquiry';
+      const message = (fd.get('message') || '').toString().trim();
+      if (!name || !email || !message) {
+        status.textContent = 'Please fill in name, email, and message.';
+        status.classList.add('is-error'); return;
+      }
+      if (FORMSPREE_ENDPOINT) {
+        status.textContent = 'Sending…';
+        try {
+          const resp = await fetch(FORMSPREE_ENDPOINT, { method:'POST', headers:{'Accept':'application/json'}, body: fd });
+          if (resp.ok) { form.reset(); status.textContent = 'Sent — I\'ll reply soon.'; }
+          else throw new Error('Bad response');
+        } catch (err) {
+          status.textContent = 'Send failed. Opening your mail app instead…';
+          status.classList.add('is-error');
+          fallbackMailto(name, email, subject, message);
+        }
+      } else {
+        status.textContent = 'Opening your mail app…';
+        fallbackMailto(name, email, subject, message);
+      }
+    });
+  }
+  function fallbackMailto(n, e, s, m) {
+    window.location.href = `mailto:ahmedbilalned@gmail.com?subject=${encodeURIComponent(s)}&body=${encodeURIComponent('From: '+n+' <'+e+'>\n\n'+m)}`;
+  }
+})();
+</script>
+
+</body>
+</html>
