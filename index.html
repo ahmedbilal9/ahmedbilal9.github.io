@@ -1647,11 +1647,11 @@ footer .inner {
 
         <form class="cform reveal d2" id="cf" novalidate>
           <div class="row2">
-            <input type="text" placeholder="Your name" required />
-            <input type="email" placeholder="Email address" required />
+            <input type="text" name="name" placeholder="Your name" required />
+            <input type="email" name="email" placeholder="Email address" required />
           </div>
-          <input type="text" placeholder="Subject (optional)" />
-          <textarea placeholder="Your message" required></textarea>
+          <input type="text" name="subject" placeholder="Subject (optional)" />
+          <textarea name="message" placeholder="Your message" required></textarea>
           <button class="btn btn-primary" type="submit">Send message <span class="arrow">→</span></button>
           <span class="ok" id="cfOk"></span>
         </form>
@@ -2837,14 +2837,35 @@ window.__PROJECTS = [
     }, { threshold: 0.4 }).observe(pf);
   }
 
-  // contact form (no backend — just a friendly reset)
+  // contact form — Formspree
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mbdqvnbw';
   const cf = $('#cf');
   if (cf) {
-    cf.addEventListener('submit', (e) => {
+    cf.addEventListener('submit', async (e) => {
       e.preventDefault();
-      $('#cfOk').textContent = 'MESSAGE QUEUED · I read every one. Thanks!';
-      cf.reset();
-      setTimeout(() => $('#cfOk').textContent = '', 6000);
+      const btn = cf.querySelector('button[type="submit"]');
+      const ok  = $('#cfOk');
+      btn.textContent = 'Sending…';
+      btn.disabled = true;
+      try {
+        const data = new FormData(cf);
+        const res  = await fetch(FORMSPREE_ENDPOINT, {
+          method: 'POST',
+          body: data,
+          headers: { Accept: 'application/json' }
+        });
+        if (res.ok) {
+          ok.textContent = '✓ MESSAGE SENT · I read every one. Thanks!';
+          cf.reset();
+        } else {
+          ok.textContent = '✗ Something went wrong — email me directly.';
+        }
+      } catch {
+        ok.textContent = '✗ Network error — email me directly.';
+      }
+      btn.textContent = 'Send message →';
+      btn.disabled = false;
+      setTimeout(() => ok.textContent = '', 7000);
     });
   }
 
